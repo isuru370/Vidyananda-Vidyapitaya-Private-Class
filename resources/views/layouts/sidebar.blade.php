@@ -51,13 +51,66 @@
                     </button>
                 </div>
             @endif
+            @if (hasPermission('attendance.index'))
+                <div class="nav-item">
+                    <button type="button"
+                        class="nav-link-custom {{ request()->routeIs('admin.class-schedules.todayClasses') ? 'active' : '' }}"
+                        data-route="admin.class-schedules.todayClasses"
+                        data-href="{{ route('admin.class-schedules.todayClasses') }}">
+                        <i class="bi bi-calendar2-check-fill"></i>
+                        <span>Today's Classes</span>
+                    </button>
+                </div>
+            @endif
+
         </div>
 
-        <!-- NOTIFICATION SECTION -->
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">STUDENT SERVICES</div>
+
+            @if (hasPermission('new-attendance.index'))
+                <div class="nav-item">
+                    <button type="button"
+                        class="nav-link-custom {{ request()->routeIs('admin.new-attendance.index') ? 'active' : '' }}"
+                        data-route="admin.new-attendance.index" data-href="{{ route('admin.new-attendance.index') }}">
+                        <i class="bi bi-calendar2-check-fill"></i>
+                        <span>Attendance</span>
+                    </button>
+                </div>
+            @endif
+
+            @if (hasPermission('new-payment.index'))
+                <div class="nav-item">
+                    <button type="button"
+                        class="nav-link-custom {{ request()->routeIs('admin.new-payment.index') ? 'active' : '' }}"
+                        data-route="admin.new-payment.index" data-href="{{ route('admin.new-payment.index') }}">
+                        <i class="bi bi-credit-card-fill"></i>
+                        <span>Payments</span>
+                    </button>
+                </div>
+            @endif
+
+            @if (hasPermission('payments.today-receipt'))
+                <div class="nav-item">
+                    <button type="button"
+                        class="nav-link-custom {{ request()->routeIs('admin.payments.today-receipt') ? 'active' : '' }}"
+                        data-route="admin.payments.today-receipt"
+                        data-href="{{ route('admin.payments.today-receipt') }}">
+                        <i class="bi bi-piggy-bank-fill"></i>
+                        <span>Payments History</span>
+                    </button>
+                </div>
+            @endif
+
+        </div>
+
+        {{-- <!-- NOTIFICATION SECTION -->
         <div class="sidebar-section">
             <div class="sidebar-section-title">NOTIFICATION</div>
 
-            @if (hasPermission('notification.view') || hasPermission('notification.create') || hasPermission('notification.delete'))
+            @if (hasPermission('notifications.view') ||
+                    hasPermission('notifications.create') ||
+                    hasPermission('notifications.delete'))
                 <div class="nav-item">
                     <button type="button"
                         class="nav-link-custom {{ request()->routeIs('admin.notifications*') ? 'active' : '' }}"
@@ -73,33 +126,11 @@
                     </button>
                 </div>
             @endif
-        </div>
+        </div> --}}
 
         <!-- MANAGEMENT -->
         <div class="sidebar-section">
             <div class="sidebar-section-title">MANAGEMENT</div>
-
-            @if (hasPermission('system-users.index'))
-                <div class="nav-item">
-                    <button type="button"
-                        class="nav-link-custom {{ request()->routeIs('admin.system-users.*') ? 'active' : '' }}"
-                        data-route="admin.system-users.index" data-href="{{ route('admin.system-users.index') }}">
-                        <i class="bi bi-people-fill"></i>
-                        <span>System User</span>
-                    </button>
-                </div>
-            @endif
-
-            @if (hasPermission('users.index'))
-                <div class="nav-item">
-                    <button type="button"
-                        class="nav-link-custom {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"
-                        data-route="admin.users.index" data-href="{{ route('admin.users.index') }}">
-                        <i class="bi bi-person-circle"></i>
-                        <span>Users</span>
-                    </button>
-                </div>
-            @endif
 
             @if (hasPermission('students.index'))
                 <div class="nav-item">
@@ -144,6 +175,28 @@
                     </button>
                 </div>
             @endif
+
+            @if (hasPermission('system-users.index'))
+                <div class="nav-item">
+                    <button type="button"
+                        class="nav-link-custom {{ request()->routeIs('admin.system-users.*') ? 'active' : '' }}"
+                        data-route="admin.system-users.index" data-href="{{ route('admin.system-users.index') }}">
+                        <i class="bi bi-people-fill"></i>
+                        <span>System User</span>
+                    </button>
+                </div>
+            @endif
+
+            @if (hasPermission('users.index'))
+                <div class="nav-item">
+                    <button type="button"
+                        class="nav-link-custom {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"
+                        data-route="admin.users.index" data-href="{{ route('admin.users.index') }}">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Users</span>
+                    </button>
+                </div>
+            @endif
         </div>
 
         <div class="sidebar-section">
@@ -153,14 +206,15 @@
                 <div class="nav-item">
                     <button type="button"
                         class="nav-link-custom {{ request()->routeIs('admin.student-images.*') ? 'active' : '' }}"
-                        data-route="admin.student-images.index" data-href="{{ route('admin.student-images.index') }}">
+                        data-route="admin.student-images.index"
+                        data-href="{{ route('admin.student-images.index') }}">
                         <i class="bi bi-images"></i>
                         <span>Student Images</span>
                     </button>
                 </div>
             @endif
 
-            @if (hasPermission('student-id-cards.index'))
+            {{-- @if (hasPermission('student-id-cards.index'))
                 <div class="nav-item">
                     <button type="button"
                         class="nav-link-custom {{ request()->routeIs('admin.student-id-cards.index') ? 'active' : '' }}"
@@ -170,7 +224,7 @@
                         <span>Student ID Cards</span>
                     </button>
                 </div>
-            @endif
+            @endif --}}
             @if (hasPermission('student-cards.index'))
                 <div class="nav-item">
                     <button type="button"
@@ -185,7 +239,7 @@
                 </div>
             @endif
 
-            @if (hasPermission('admin.temporary-id-cards.index'))
+            {{-- @if (hasPermission('admin.temporary-id-cards.index'))
                 <div class="nav-item">
                     <button type="button"
                         class="nav-link-custom {{ request()->routeIs('admin.temporary-id-cards.*') ? 'active' : '' }}"
@@ -195,7 +249,7 @@
                         <span>Temporary ID</span>
                     </button>
                 </div>
-            @endif
+            @endif --}}
         </div>
 
 
@@ -238,19 +292,6 @@
                     </button>
                 </div>
             @endif
-
-            @if (hasPermission('attendance.index'))
-                <div class="nav-item">
-                    <button type="button"
-                        class="nav-link-custom {{ request()->routeIs('admin.class-schedules.todayClasses') ? 'active' : '' }}"
-                        data-route="admin.class-schedules.todayClasses"
-                        data-href="{{ route('admin.class-schedules.todayClasses') }}">
-                        <i class="bi bi-calendar2-check-fill"></i>
-                        <span>Attendance</span>
-                    </button>
-                </div>
-            @endif
-
 
         </div>
 
@@ -297,13 +338,35 @@
                 </div>
             @endif
 
-            @if (hasPermission('payments.index'))
+            {{-- @if (hasPermission('payments.today-receipt'))
                 <div class="nav-item">
                     <button type="button"
-                        class="nav-link-custom {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}"
-                        data-route="admin.payments.index" data-href="{{ route('admin.payments.index') }}">
+                        class="nav-link-custom {{ request()->routeIs('admin.payments.today-receipt') ? 'active' : '' }}"
+                        data-route="admin.payments.today-receipt"
+                        data-href="{{ route('admin.payments.today-receipt') }}">
                         <i class="bi bi-credit-card-fill"></i>
-                        <span>Payments</span>
+                        <span>Today's Payments</span>
+                    </button>
+                </div>
+            @endif --}}
+
+            @if (hasPermission('payment-reminder.index'))
+                <div class="nav-item">
+                    <button type="button"
+                        class="nav-link-custom {{ request()->routeIs('admin.payment-reminder.*') ? 'active' : '' }}"
+                        data-route="admin.payment-reminder.index"
+                        data-href="{{ route('admin.payment-reminder.index') }}">
+                        <i class="bi bi-bell-fill"></i>
+                        <span>Payment Reminder</span>
+                        @php
+                            // Optional: Show count of unpaid students
+                            // This is just a visual indicator - you can implement logic
+                            $unpaidCount = 0;
+                            // You can add logic here to count unpaid students
+                        @endphp
+                        @if ($unpaidCount > 0)
+                            <span class="badge badge-danger ml-auto">{{ $unpaidCount }}</span>
+                        @endif
                     </button>
                 </div>
             @endif
@@ -368,7 +431,7 @@
                         data-route="admin.institute-income.monthly-report"
                         data-href="{{ route('admin.institute-income.monthly-report') }}">
                         <i class="bi bi-bar-chart-line-fill"></i>
-                        <span>Income Reports</span>
+                        <span>Institute Income</span>
                     </button>
                 </div>
             @endif
@@ -440,6 +503,36 @@
                         data-href="{{ route('admin.institute-reports.index') }}">
                         <i class="bi bi-file-earmark-person"></i>
                         <span>Institute Payment Report</span>
+                    </button>
+                </div>
+            @endif
+            {{-- Monthly Class Attendance Report --}}
+            @if (hasPermission('monthly-class-attendance-report.index'))
+                <div class="nav-item">
+                    <button type="button"
+                        class="nav-link-custom {{ request()->routeIs('admin.monthly-class-attendance-report.*') ? 'active' : '' }}"
+                        data-route="admin.monthly-class-attendance-report.index"
+                        data-href="{{ route('admin.monthly-class-attendance-report.index') }}">
+
+                        <i class="bi bi-calendar-check"></i>
+
+                        <span>Monthly Class Attendance Report</span>
+
+                    </button>
+                </div>
+            @endif
+
+            @if (hasPermission('payment-collection-report.index'))
+                <div class="nav-item">
+                    <button type="button"
+                        class="nav-link-custom {{ request()->routeIs('admin.payment-collection-report.*') ? 'active' : '' }}"
+                        data-route="admin.payment-collection-report.index"
+                        data-href="{{ route('admin.payment-collection-report.index') }}">
+
+                        <i class="bi bi-cash-stack"></i>
+
+                        <span>Payment Collection Report</span>
+
                     </button>
                 </div>
             @endif
@@ -700,62 +793,133 @@
 
 <script>
     (function() {
-        // Convert all sidebar navigation buttons to actual navigation handlers
+
+        const sidebarBody = document.querySelector('.sidebar-body');
         const navButtons = document.querySelectorAll('#sidebar .nav-link-custom');
         const brandButton = document.getElementById('brandButton');
 
-        // Function to handle navigation
+        const SIDEBAR_SCROLL_KEY = 'nexora_sidebar_scroll';
+
+        /*
+         * Restore sidebar scroll position after page reload
+         */
+        function restoreSidebarScroll() {
+            if (!sidebarBody) {
+                return;
+            }
+
+            const savedScroll = sessionStorage.getItem(SIDEBAR_SCROLL_KEY);
+
+            if (savedScroll !== null) {
+                setTimeout(function() {
+                    sidebarBody.scrollTop = parseInt(savedScroll, 10) || 0;
+                }, 50);
+            }
+        }
+
+        /*
+         * Save sidebar scroll position before navigation
+         */
+        function saveSidebarScroll() {
+            if (!sidebarBody) {
+                return;
+            }
+
+            sessionStorage.setItem(
+                SIDEBAR_SCROLL_KEY,
+                sidebarBody.scrollTop
+            );
+        }
+
+        /*
+         * Navigation
+         */
         function navigateTo(url, routeName, buttonElement) {
-            // Remove active class from all buttons
-            navButtons.forEach(btn => {
+
+            /*
+             * Save current sidebar position
+             */
+            saveSidebarScroll();
+
+            /*
+             * Remove active class
+             */
+            navButtons.forEach(function(btn) {
                 btn.classList.remove('active');
             });
 
-            // Add active class to clicked button
+            /*
+             * Add active class
+             */
             if (buttonElement) {
                 buttonElement.classList.add('active');
             }
 
-            // Actual navigation - redirect to the route URL
+            /*
+             * Navigate
+             */
             if (url && url !== '#') {
                 window.location.href = url;
             }
         }
 
-        // Add click handlers to all nav buttons
-        navButtons.forEach(button => {
+        /*
+         * Sidebar button clicks
+         */
+        navButtons.forEach(function(button) {
+
             button.addEventListener('click', function(e) {
+
                 e.preventDefault();
+
                 const url = this.getAttribute('data-href');
                 const routeName = this.getAttribute('data-route');
+
                 navigateTo(url, routeName, this);
             });
+
         });
 
-        // Handle brand button click (navigate to dashboard)
+        /*
+         * Brand / Nexora button
+         */
         if (brandButton) {
+
             brandButton.addEventListener('click', function(e) {
+
                 e.preventDefault();
+
+                /*
+                 * Save sidebar position
+                 */
+                saveSidebarScroll();
+
                 const dashboardUrl = "{{ route('admin.dashboard') }}";
 
-                // Remove active from all nav buttons
-                navButtons.forEach(btn => {
+                navButtons.forEach(function(btn) {
                     btn.classList.remove('active');
                 });
 
-                // Find and activate dashboard button if exists
-                const dashboardBtn = Array.from(navButtons).find(btn =>
-                    btn.getAttribute('data-route') === 'admin.dashboard'
-                );
+                const dashboardBtn = Array.from(navButtons).find(function(btn) {
+                    return btn.getAttribute('data-route') === 'admin.dashboard';
+                });
+
                 if (dashboardBtn) {
                     dashboardBtn.classList.add('active');
                 }
 
-                // Navigate to dashboard
                 if (dashboardUrl && dashboardUrl !== '#') {
                     window.location.href = dashboardUrl;
                 }
+
             });
+
         }
+
+        /*
+         * Restore after page loaded
+         */
+        restoreSidebarScroll();
+
     })();
 </script>

@@ -15,24 +15,24 @@
 
                     <div>
                         <h4 class="fw-bold mb-1">
-                            {{ $studentClass->class_name }}
+                            {{ $studentClass->class_name ?? 'Class' }}
                         </h4>
 
                         <div class="text-muted">
 
                             <span class="me-3">
                                 <strong>Teacher :</strong>
-                                {{ optional($studentClass->teacher)->full_name }}
+                                {{ optional($studentClass->teacher)->full_name ?? 'N/A' }}
                             </span>
 
                             <span class="me-3">
                                 <strong>Subject :</strong>
-                                {{ optional($studentClass->subject)->subject_name }}
+                                {{ optional($studentClass->subject)->subject_name ?? 'N/A' }}
                             </span>
 
                             <span class="me-3">
                                 <strong>Grade :</strong>
-                                {{ optional($studentClass->grade)->grade_name }}
+                                {{ optional($studentClass->grade)->grade_name ?? 'N/A' }}
                             </span>
 
                         </div>
@@ -64,7 +64,7 @@
                         </h6>
 
                         <h5>
-                            {{ optional($categoryFee->category)->category_name }}
+                            {{ optional($categoryFee->category)->category_name ?? 'N/A' }}
                         </h5>
 
                     </div>
@@ -76,7 +76,7 @@
                         </h6>
 
                         <h5>
-                            Rs. {{ number_format($categoryFee->fee, 2) }}
+                            Rs. {{ number_format($categoryFee->fee ?? 0, 2) }}
                         </h5>
 
                     </div>
@@ -127,20 +127,20 @@
 
                     <tbody>
 
-                        @forelse($patterns as $pattern)
+                        @forelse($patterns ?? [] as $pattern)
                             <tr>
 
                                 <td class="text-capitalize">
-                                    {{ $pattern->class_day }}
+                                    {{ $pattern->class_day ?? 'N/A' }}
                                 </td>
 
                                 <td>
 
-                                    {{ \Carbon\Carbon::parse($pattern->start_time)->format('h:i A') }}
+                                    {{ \Carbon\Carbon::parse($pattern->start_time)->format('h:i A') ?? 'N/A' }}
 
                                     -
 
-                                    {{ \Carbon\Carbon::parse($pattern->end_time)->format('h:i A') }}
+                                    {{ \Carbon\Carbon::parse($pattern->end_time)->format('h:i A') ?? 'N/A' }}
 
                                 </td>
 
@@ -152,19 +152,19 @@
 
                                 <td>
 
-                                    {{ $pattern->start_date->format('Y-m-d') }}
+                                    {{ $pattern->start_date->format('Y-m-d') ?? 'N/A' }}
 
                                 </td>
 
                                 <td>
 
-                                    {{ $pattern->end_date->format('Y-m-d') }}
+                                    {{ $pattern->end_date->format('Y-m-d') ?? 'N/A' }}
 
                                 </td>
 
                                 <td>
 
-                                    <a href="{{ route('admin.class-schedules.editBulkSchedule', $pattern->id) }}"
+                                    <a href="{{ route('admin.class-schedules.editBulkSchedule', $pattern->id ?? 0) }}"
                                         class="btn btn-warning btn-sm">
                                         <i class="bi bi-pencil-square"></i>
                                         Edit

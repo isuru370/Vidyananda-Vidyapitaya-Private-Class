@@ -5,18 +5,13 @@ namespace App\Services;
 use App\Jobs\SendStudentPortalLoginSms;
 use App\Models\Grade;
 use App\Models\Student;
-use App\Models\StudentIdCard;
 use App\Models\StudentPortalLogin;
 use App\Models\TemporaryIdCard;
 use App\Models\AdmissionPayment;
 use App\Models\Admission;
 use App\Models\QuickPhoto;
 use App\Services\ParentHub\ParentHubService;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
-use Exception;
 
 class StudentService
 {
@@ -174,22 +169,6 @@ class StudentService
     }
 
     /**
-     * Create student ID card record
-     */
-    public function createStudentIdCard(Student $student, string $registrationStatus = 'incomplete'): void
-    {
-        StudentIdCard::create([
-            'student_id' => $student->id,
-            'status' => 'pending',
-            'registration_status' => $registrationStatus,
-            'student_fee' => 350,
-            'print_cost' => 90,
-            'profit' => 260,
-            'is_reissue' => false,
-        ]);
-    }
-
-    /**
      * Assign temporary card to student
      */
     public function assignTemporaryCard(Student $student, string $temporaryQrCode): void
@@ -322,24 +301,6 @@ class StudentService
             }
         }
     }
-
-    /**
-     * Update student card registration status
-     */
-    public function updateStudentCardRegistrationStatus(Student $student, string $status = 'completed'): void
-    {
-        $studentCard = StudentIdCard::where('student_id', $student->id)
-            ->where('status', 'pending')
-            ->latest()
-            ->first();
-
-        if ($studentCard) {
-            $studentCard->update([
-                'registration_status' => $status,
-            ]);
-        }
-    }
-
     /**
      * Handle student image upload
      */

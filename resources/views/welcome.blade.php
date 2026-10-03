@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vidyananda Vidyapeetaya · welcome</title>
+    <title>{{ config('app.name') }} · Higher Education Institute</title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,300&display=swap" rel="stylesheet">
@@ -36,17 +36,14 @@
             --emerald: #34d399;
         }
 
-        html, body {
-            height: 100%;
-            overflow: hidden;
-        }
-
         body {
             font-family: 'Inter', sans-serif;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            overflow-x: hidden;
             color: var(--text-main);
             background:
                 radial-gradient(circle at 18% 12%, rgba(34, 211, 238, 0.18), transparent 28%),
@@ -57,19 +54,18 @@
 
         body::before {
             content: '';
-            position: fixed;
+            position: absolute;
             inset: 0;
             background-image:
                 linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 42px 42px;
-            mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.55));
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.55));
             pointer-events: none;
-            z-index: 0;
         }
 
         .ambient {
-            position: fixed;
+            position: absolute;
             inset: 0;
             pointer-events: none;
             overflow: hidden;
@@ -121,9 +117,8 @@
 
         .dashboard-shell {
             width: min(920px, calc(100% - 32px));
-            max-height: calc(100vh - 40px);
             z-index: 2;
-            padding: 14px;
+            padding: 18px;
             border-radius: 34px;
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -137,14 +132,10 @@
         .container {
             position: relative;
             border-radius: 28px;
-            padding: 1.5rem 2rem;
+            padding: 2rem;
             background: linear-gradient(180deg, rgba(8, 24, 36, 0.88), rgba(6, 19, 29, 0.78));
             border: 1px solid var(--border);
             overflow: hidden;
-            max-height: calc(100vh - 70px);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
         }
 
         .container::before {
@@ -179,7 +170,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 1rem;
-            margin-bottom: 1.2rem;
+            margin-bottom: 1.8rem;
             flex-wrap: wrap;
         }
 
@@ -187,12 +178,12 @@
             display: inline-flex;
             align-items: center;
             gap: 0.7rem;
-            padding: 0.6rem 1.1rem;
+            padding: 0.85rem 1.1rem;
             border-radius: 999px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.08);
             color: var(--text-soft);
-            font-size: 0.82rem;
+            font-size: 0.92rem;
             font-weight: 600;
             letter-spacing: 0.02em;
         }
@@ -212,12 +203,12 @@
             display: inline-flex;
             align-items: center;
             gap: 0.55rem;
-            padding: 0.5rem 0.95rem;
+            padding: 0.72rem 0.95rem;
             border-radius: 999px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.08);
             color: var(--text-soft);
-            font-size: 0.78rem;
+            font-size: 0.86rem;
             font-weight: 500;
         }
 
@@ -228,7 +219,7 @@
         .logo-container {
             display: flex;
             justify-content: center;
-            margin-bottom: 0.8rem;
+            margin-bottom: 1.4rem;
             position: relative;
             z-index: 2;
         }
@@ -239,7 +230,7 @@
         }
 
         .logo {
-            max-width: 200px;
+            max-width: 250px;
             width: 100%;
             height: auto;
             display: block;
@@ -254,13 +245,13 @@
             z-index: 2;
             display: grid;
             grid-template-columns: 1fr;
-            gap: 0.6rem;
+            gap: 1rem;
             text-align: center;
             align-items: center;
         }
 
         h1 {
-            font-size: clamp(1.6rem, 3.2vw, 2.8rem);
+            font-size: clamp(2rem, 4vw, 3.4rem);
             font-weight: 800;
             line-height: 1.08;
             letter-spacing: -0.04em;
@@ -276,29 +267,28 @@
 
         .subline {
             color: var(--text-soft);
-            font-size: 0.92rem;
-            line-height: 1.6;
+            font-size: 1rem;
+            line-height: 1.7;
             max-width: 760px;
             margin: 0 auto;
         }
 
         .tagline {
-            margin: 0.4rem auto 0;
+            margin: 1rem auto 0;
             max-width: 680px;
-            padding: 0.7rem 1.1rem;
+            padding: 1rem 1.1rem;
             border-radius: 18px;
             background: rgba(255, 255, 255, 0.045);
             border: 1px solid rgba(255, 255, 255, 0.07);
             color: var(--text-soft);
             font-style: italic;
-            line-height: 1.5;
-            font-size: 0.9rem;
+            line-height: 1.6;
         }
 
         .redirect-card {
-            margin: 0.8rem auto 0;
+            margin: 2rem auto 0;
             width: fit-content;
-            padding: 0.7rem 1.2rem;
+            padding: 1rem 1.2rem;
             border-radius: 24px;
             background: linear-gradient(135deg, rgba(15, 118, 110, 0.70), rgba(14, 165, 233, 0.72));
             display: flex;
@@ -313,12 +303,12 @@
         }
 
         .redirect-card i {
-            font-size: 1.1rem;
+            font-size: 1.3rem;
             color: white;
         }
 
         .redirect-text {
-            font-size: 0.9rem;
+            font-size: 1rem;
             font-weight: 700;
             color: white;
             letter-spacing: 0.01em;
@@ -328,7 +318,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.1rem;
+            gap: 0.15rem;
             padding-left: 0.2rem;
         }
 
@@ -336,34 +326,33 @@
             background: rgba(255, 255, 255, 0.96);
             color: #0f766e;
             font-weight: 800;
-            font-size: 1.2rem;
-            padding: 0.15rem 0.8rem;
+            font-size: 1.45rem;
+            padding: 0.28rem 0.95rem;
             border-radius: 999px;
-            min-width: 55px;
+            min-width: 70px;
             text-align: center;
             line-height: 1;
         }
 
         .countdown-label {
-            font-size: 0.7rem;
+            font-size: 0.82rem;
             font-weight: 500;
             color: rgba(255, 255, 255, 0.82);
         }
 
         .meta-note {
-            margin-top: 0.8rem;
-            font-size: 0.8rem;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
             color: var(--text-dim);
             z-index: 2;
             display: inline-flex;
             align-items: center;
             gap: 0.65rem;
-            padding: 0.5rem 1.1rem;
+            padding: 0.7rem 1.1rem;
             border-radius: 999px;
             background: rgba(255, 255, 255, 0.045);
             border: 1px solid rgba(255, 255, 255, 0.07);
             backdrop-filter: blur(10px);
-            justify-self: center;
         }
 
         .meta-note i {
@@ -371,7 +360,8 @@
         }
 
         @keyframes drift {
-            0%, 100% {
+            0%,
+            100% {
                 transform: translateY(0) scale(1);
             }
             50% {
@@ -384,40 +374,19 @@
                 width: calc(100% - 18px);
                 padding: 10px;
                 border-radius: 26px;
-                max-height: calc(100vh - 20px);
             }
 
             .container {
-                padding: 1rem 1.2rem;
+                padding: 1.35rem;
                 border-radius: 20px;
-                max-height: calc(100vh - 42px);
             }
 
             .topbar {
                 justify-content: center;
-                margin-bottom: 0.8rem;
             }
 
             .status-group {
                 justify-content: center;
-            }
-
-            .brand-chip {
-                font-size: 0.7rem;
-                padding: 0.4rem 0.8rem;
-            }
-
-            .status-pill {
-                font-size: 0.65rem;
-                padding: 0.35rem 0.7rem;
-            }
-
-            .logo {
-                max-width: 140px;
-            }
-
-            .logo-container {
-                margin-bottom: 0.5rem;
             }
 
             .redirect-card {
@@ -425,178 +394,11 @@
                 justify-content: center;
                 flex-wrap: wrap;
                 border-radius: 20px;
-                padding: 0.6rem 1rem;
-                gap: 0.6rem;
             }
 
             .countdown-badge {
-                min-width: 50px;
-                font-size: 1.1rem;
-            }
-
-            .redirect-text {
-                font-size: 0.8rem;
-            }
-
-            h1 {
-                font-size: 1.4rem;
-            }
-
-            .subline {
-                font-size: 0.8rem;
-            }
-
-            .tagline {
-                font-size: 0.78rem;
-                padding: 0.5rem 0.8rem;
-                margin-top: 0.2rem;
-            }
-
-            .meta-note {
-                font-size: 0.7rem;
-                padding: 0.35rem 0.8rem;
-                margin-top: 0.5rem;
-                gap: 0.4rem;
-            }
-
-            .hero {
-                gap: 0.3rem;
-            }
-        }
-
-        @media (max-height: 700px) {
-            .container {
-                padding: 1rem 1.5rem;
-            }
-            
-            .logo {
-                max-width: 140px;
-            }
-            
-            .logo-container {
-                margin-bottom: 0.4rem;
-            }
-            
-            h1 {
-                font-size: clamp(1.2rem, 2.8vw, 2rem);
-            }
-            
-            .subline {
-                font-size: 0.78rem;
-                line-height: 1.4;
-            }
-            
-            .tagline {
-                font-size: 0.75rem;
-                padding: 0.4rem 0.8rem;
-                margin-top: 0.2rem;
-            }
-            
-            .redirect-card {
-                padding: 0.5rem 1rem;
-                margin-top: 0.4rem;
-            }
-            
-            .brand-chip {
-                font-size: 0.7rem;
-                padding: 0.35rem 0.8rem;
-            }
-            
-            .status-pill {
-                font-size: 0.65rem;
-                padding: 0.3rem 0.7rem;
-            }
-            
-            .topbar {
-                margin-bottom: 0.6rem;
-            }
-            
-            .meta-note {
-                margin-top: 0.4rem;
-                font-size: 0.7rem;
-                padding: 0.3rem 0.8rem;
-            }
-        }
-
-        @media (max-height: 600px) {
-            .dashboard-shell {
-                padding: 8px;
-            }
-            
-            .container {
-                padding: 0.6rem 1rem;
-                border-radius: 16px;
-            }
-            
-            .logo {
-                max-width: 100px;
-            }
-            
-            .logo-container {
-                margin-bottom: 0.2rem;
-            }
-            
-            h1 {
-                font-size: 1rem;
-            }
-            
-            .subline {
-                font-size: 0.65rem;
-                line-height: 1.3;
-            }
-            
-            .tagline {
-                font-size: 0.6rem;
-                padding: 0.2rem 0.6rem;
-            }
-            
-            .redirect-card {
-                padding: 0.3rem 0.8rem;
-                margin-top: 0.2rem;
-                gap: 0.4rem;
-                border-radius: 16px;
-            }
-            
-            .redirect-text {
-                font-size: 0.65rem;
-            }
-            
-            .countdown-badge {
-                font-size: 0.9rem;
-                min-width: 40px;
-                padding: 0.1rem 0.5rem;
-            }
-            
-            .countdown-label {
-                font-size: 0.55rem;
-            }
-            
-            .meta-note {
-                font-size: 0.55rem;
-                padding: 0.2rem 0.6rem;
-                margin-top: 0.2rem;
-                gap: 0.3rem;
-            }
-            
-            .brand-chip {
-                font-size: 0.55rem;
-                padding: 0.2rem 0.6rem;
-                gap: 0.4rem;
-            }
-            
-            .status-pill {
-                font-size: 0.5rem;
-                padding: 0.2rem 0.5rem;
-                gap: 0.3rem;
-            }
-            
-            .topbar {
-                margin-bottom: 0.3rem;
-                gap: 0.4rem;
-            }
-            
-            .hero {
-                gap: 0.15rem;
+                min-width: 84px;
+                font-size: 1.65rem;
             }
         }
     </style>
@@ -615,7 +417,7 @@
             <div class="topbar">
                 <div class="brand-chip">
                     <i class="fas fa-layer-group"></i>
-                    Vidyananda · premium welcome
+                    Premium dashboard · {{ config('app.name') }}
                 </div>
                 <div class="status-group">
                     <div class="status-pill"><i class="fas fa-shield-halved"></i> Secure portal</div>
@@ -624,22 +426,24 @@
             </div>
 
             <div class="logo-container">
-                <img src="{{ asset('storage/logo/logo.png') }}" alt="Vidyananda Vidyapeetaya logo" class="logo"
-                    onerror="this.src='https://placehold.co/320x120/0f766e/ffffff?text=Vidyananda+Vidyapeetaya&font=inter';">
+                <img src="{{ asset('storage/' . env('INSTITUTE_LOGO', 'logo/logo.png')) }}"
+                     alt="{{ config('app.name') }}"
+                     class="logo"
+                     onerror="this.src='https://placehold.co/320x120/0f766e/ffffff?text={{ urlencode(config('app.name')) }}&font=inter';">
             </div>
 
             <div class="hero">
                 <h1>
-                    Welcome to <span class="accent">Vidyananda Vidyapeetaya</span>
+                    Welcome to <span class="accent">{{ config('app.name') }}</span>
                 </h1>
 
                 <p class="subline">
-                    A modern, secure, and premium learning environment designed for excellence, growth, and future-ready education.
+                    {{ config('app.name') }} — a premier higher education institute dedicated to academic excellence, innovation, and student success.
                 </p>
 
                 <p class="tagline">
                     <i class="fas fa-quote-left" style="font-size:0.9rem; opacity:0.65; margin-right:6px;"></i>
-                    Empowering minds, shaping futures through wisdom and virtue
+                    {{ env('INSTITUTE_TAGLINE', 'Empowering minds, shaping futures through excellence in education') }}
                     <i class="fas fa-quote-right" style="font-size:0.9rem; opacity:0.65; margin-left:6px;"></i>
                 </p>
 
@@ -662,7 +466,7 @@
     </div>
 
     <script>
-        (function () {
+        (function() {
             let secondsLeft = 5;
             const countdownSpan = document.getElementById('countdown');
             countdownSpan.textContent = secondsLeft;

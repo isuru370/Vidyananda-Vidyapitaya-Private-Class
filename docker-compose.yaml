@@ -1,20 +1,17 @@
 version: '3.8'
 
 services:
+
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: laravel_app
     restart: always
-    ports:
-      - '8013:80'
     volumes:
       - storage_volume:/var/www/html/storage
       - uploads_volume:/var/www/html/public/uploads
     environment:
       - APP_ENV=production
-      - APP_URL=https://vidyananda.nexorait.lk
       - QUEUE_CONNECTION=database
     command: >
       sh -c "
@@ -24,17 +21,17 @@ services:
       "
 
   worker:
+    depends_on:
+      - app
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: laravel_worker
     restart: always
     volumes:
       - storage_volume:/var/www/html/storage
       - uploads_volume:/var/www/html/public/uploads
     environment:
       - APP_ENV=production
-      - APP_URL=https://vidyananda.nexorait.lk
       - QUEUE_CONNECTION=database
     command: >
       sh -c "

@@ -89,7 +89,7 @@ class StudentRegisterController extends Controller
             $this->studentService->assignTemporaryCard($student, $validated['temporary_qr_code']);
 
             // Create student ID card
-            $this->studentService->createStudentIdCard($student, 'incomplete');
+            //$this->studentService->createStudentIdCard($student, 'incomplete');
 
             // Handle admission payment
             $admissionPayment = null;

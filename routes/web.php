@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\OrganizerController;
 use App\Http\Controllers\Admin\ClassCategoryController;
 use App\Http\Controllers\Admin\ClassCategoryFeeController;
+use App\Http\Controllers\Admin\ClassCategoryFeeOptionController;
 use App\Http\Controllers\Admin\ClassHallController;
 use App\Http\Controllers\Admin\ClassScheduleController;
 use App\Http\Controllers\Admin\ClassTimeTableController;
@@ -30,13 +31,17 @@ use App\Http\Controllers\Admin\InstituteIncomeController;
 use App\Http\Controllers\Admin\InstitutePaymentReportController;
 use App\Http\Controllers\Admin\InstituteReportController;
 use App\Http\Controllers\Admin\LogController;
+use App\Http\Controllers\Admin\MonthlyClassAttendanceReportController;
 use App\Http\Controllers\Admin\MonthlyReportController;
+use App\Http\Controllers\Admin\NewAttendance\AttendanceController;
+use App\Http\Controllers\Admin\NewPayment\PaymentController;
 use App\Http\Controllers\Admin\NotificationController;
+use App\Http\Controllers\Admin\PaymentCollectionReportController;
+use App\Http\Controllers\Admin\PaymentReminderController;
 use App\Http\Controllers\Admin\ReceiptController;
 use App\Http\Controllers\Admin\StudentCardController;
 use App\Http\Controllers\Admin\StudentCardRegistrationController;
 use App\Http\Controllers\Admin\StudentClassManagementController;
-use App\Http\Controllers\Admin\StudentIDCardController;
 use App\Http\Controllers\Admin\StudentImageController;
 use App\Http\Controllers\Admin\StudentPaymentController;
 use App\Http\Controllers\Admin\TeacherReportController;
@@ -170,6 +175,9 @@ Route::middleware([
         [LogController::class, 'index']
     )->name('logs.laravel.index');
 
+    Route::get('/logs/laravel/content', [LogController::class, 'content'])
+        ->name('logs.laravel.content');
+
     Route::post(
         '/logs/laravel/clear',
         [LogController::class, 'clear']
@@ -190,7 +198,6 @@ Route::middleware([
 Route::middleware([
     'auth',
     'user.active',
-    'role:ADMIN'
 ])->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -230,10 +237,12 @@ Route::middleware([
             [DashboardController::class, 'index']
         )->name('dashboard');
 
-        Route::resource(
-            'system-users',
-            SystemUserController::class
-        );
+        Route::middleware('role:ADMIN')->group(function () {
+            Route::resource(
+                'system-users',
+                SystemUserController::class
+            );
+        });
 
         Route::get('system-users/export/excel', [SystemUserController::class, 'exportExcel'])
             ->name('system-users.export.excel');
@@ -271,10 +280,12 @@ Route::middleware([
         )->name('students.search');
 
         // Resource
-        Route::resource(
-            'students',
-            StudentController::class
-        );
+        Route::middleware('role:ADMIN,USER')->group(function () {
+            Route::resource(
+                'students',
+                StudentController::class
+            );
+        });
 
         // Toggle Active
         Route::patch(
@@ -329,6 +340,56 @@ Route::middleware([
 
 
         /*
+|--------------------------------------------------------------------------
+| New Payment
+|--------------------------------------------------------------------------
+*/
+
+        Route::prefix('new-payment')
+            ->name('new-payment.')
+            ->middleware('role:ADMIN,USER')
+            ->controller(PaymentController::class)
+            ->group(function () {
+
+                /*
+        |--------------------------------------------------------------------------
+        | Payment Screen
+        |--------------------------------------------------------------------------
+        */
+
+                Route::get('/', 'index')
+                    ->name('index');
+
+                /*
+        |--------------------------------------------------------------------------
+        | Read Student
+        |--------------------------------------------------------------------------
+        */
+
+                Route::post('/read', 'read')
+                    ->name('read');
+
+                /*
+        |--------------------------------------------------------------------------
+        | Single Payment
+        |--------------------------------------------------------------------------
+        */
+
+                Route::post('/pay', 'pay')
+                    ->name('pay');
+
+                /*
+        |--------------------------------------------------------------------------
+        | Bulk Payment
+        |--------------------------------------------------------------------------
+        */
+
+                Route::post('/bulk-pay', 'bulkPay')
+                    ->name('bulk-pay');
+            });
+
+
+        /*
         |--------------------------------------------------------------------------
         | Student Image Upload
         |--------------------------------------------------------------------------
@@ -356,10 +417,12 @@ Route::middleware([
         |--------------------------------------------------------------------------
         */
 
-        Route::resource(
-            'teachers',
-            TeacherController::class
-        );
+        Route::middleware('role:ADMIN')->group(function () {
+            Route::resource(
+                'teachers',
+                TeacherController::class
+            );
+        });
 
         Route::get(
             'teachers/{teacher}/login-details',
@@ -398,10 +461,12 @@ Route::middleware([
         |--------------------------------------------------------------------------
         */
 
-        Route::resource(
-            'organizers',
-            OrganizerController::class
-        );
+        Route::middleware('role:ADMIN')->group(function () {
+            Route::resource(
+                'organizers',
+                OrganizerController::class
+            );
+        });
 
         Route::patch(
             'organizers/{organizer}/toggle-active',
@@ -420,10 +485,12 @@ Route::middleware([
             [StudentClassController::class, 'search']
         )->name('student-classes.search');
 
-        Route::resource(
-            'student-classes',
-            StudentClassController::class
-        );
+        Route::middleware('role:ADMIN,USER,TEACHER')->group(function () {
+            Route::resource(
+                'student-classes',
+                StudentClassController::class
+            );
+        });
 
         Route::patch(
             'student-classes/{studentClass}/toggle-active',
@@ -452,10 +519,12 @@ Route::middleware([
 |--------------------------------------------------------------------------
 */
 
-        Route::resource(
-            'grades',
-            GradeController::class
-        );
+        Route::middleware('role:ADMIN,USER')->group(function () {
+            Route::resource(
+                'grades',
+                GradeController::class
+            );
+        });
 
         Route::patch(
             'grades/{grade}/toggle-active',
@@ -469,10 +538,12 @@ Route::middleware([
         |--------------------------------------------------------------------------
         */
 
-        Route::resource(
-            'class-categories',
-            ClassCategoryController::class
-        );
+        Route::middleware('role:ADMIN')->group(function () {
+            Route::resource(
+                'class-categories',
+                ClassCategoryController::class
+            );
+        });
 
         Route::patch(
             'class-categories/{classCategory}/toggle-active',
@@ -491,10 +562,12 @@ Route::middleware([
             [ClassCategoryFeeController::class, 'byClass']
         )->name('class-category-fees.byClass');
 
-        Route::resource(
-            'class-category-fees',
-            ClassCategoryFeeController::class
-        );
+        Route::middleware('role:ADMIN')->group(function () {
+            Route::resource(
+                'class-category-fees',
+                ClassCategoryFeeController::class
+            );
+        });
 
         Route::patch(
             'class-category-fees/{classCategoryFee}/toggle-active',
@@ -508,10 +581,12 @@ Route::middleware([
         |--------------------------------------------------------------------------
         */
 
-        Route::resource(
-            'class-halls',
-            ClassHallController::class
-        );
+        Route::middleware('role:ADMIN')->group(function () {
+            Route::resource(
+                'class-halls',
+                ClassHallController::class
+            );
+        });
 
         Route::patch(
             'class-halls/{classHall}/toggle-active',
@@ -542,10 +617,12 @@ Route::middleware([
             [ClassScheduleController::class, 'editBulkSchedule']
         )->name('class-schedules.editBulkSchedule');
 
-        Route::resource(
-            'class-schedules',
-            ClassScheduleController::class
-        );
+        Route::middleware('role:ADMIN,USER,TEACHER')->group(function () {
+            Route::resource(
+                'class-schedules',
+                ClassScheduleController::class
+            );
+        });
 
         Route::patch(
             'class-schedules/{classSchedule}/toggle-active',
@@ -598,10 +675,12 @@ Route::middleware([
         )->name('student-class-enrollments.category-wise-payment');
 
         // Resource
-        Route::resource(
-            'student-class-enrollments',
-            StudentClassEnrollmentController::class
-        );
+        Route::middleware('role:ADMIN,USER')->group(function () {
+            Route::resource(
+                'student-class-enrollments',
+                StudentClassEnrollmentController::class
+            );
+        });
 
         // Toggle Active
         Route::patch(
@@ -638,15 +717,19 @@ Route::middleware([
 
 
 
-        Route::resource(
-            'admissions',
-            AdmissionController::class
-        );
+        Route::middleware('role:ADMIN,USER')->group(function () {
+            Route::resource(
+                'admissions',
+                AdmissionController::class
+            );
+        });
 
-        Route::resource(
-            'admission-payments',
-            AdmissionPaymentController::class
-        );
+        Route::middleware('role:ADMIN,USER')->group(function () {
+            Route::resource(
+                'admission-payments',
+                AdmissionPaymentController::class
+            );
+        });
 
         /*
         |--------------------------------------------------------------------------
@@ -658,6 +741,44 @@ Route::middleware([
             return view('admin.attendance.index');
         })->name('attendance.index');
 
+
+        /*
+|--------------------------------------------------------------------------
+| New Attendance
+|--------------------------------------------------------------------------
+*/
+
+        Route::prefix('new-attendance')
+            ->name('new-attendance.')
+            ->middleware('role:ADMIN,USER')
+            ->controller(AttendanceController::class)
+            ->group(function () {
+
+                /*
+        |--------------------------------------------------------------------------
+        | Attendance Screen
+        |--------------------------------------------------------------------------
+        */
+
+                Route::get('/', 'index')
+                    ->name('index');
+
+                /*
+        |--------------------------------------------------------------------------
+        | Scan Student
+        |--------------------------------------------------------------------------
+        |
+        | QR Web:
+        |     qr_web
+        |
+        | Manual Web:
+        |     manual_web
+        |
+        */
+
+                Route::post('/scan', 'scan')
+                    ->name('scan');
+            });
         /*
 |--------------------------------------------------------------------------
 | STUDENT EXAM
@@ -704,10 +825,12 @@ Route::middleware([
         )->name('exams.get-categories');
 
         // Resource routes
-        Route::resource(
-            'exams',
-            ExamController::class
-        )->except(['destroy']);
+        Route::middleware('role:ADMIN,USER,TEACHER')->group(function () {
+            Route::resource(
+                'exams',
+                ExamController::class
+            )->except(['destroy']);
+        });
 
         // Delete (soft delete)
         Route::delete(
@@ -868,21 +991,28 @@ Route::middleware([
         | Institute Income Report
         |-------------------------------------------------------------------------- 
         */
-        Route::get('institute-income/monthly-report', [
-            InstituteIncomeController::class,
-            'monthlyIncomeReport'
-        ])->name('institute-income.monthly-report');
+        // Institute Income - Monthly Report
+        Route::get(
+            '/institute-income/monthly-report',
+            [InstituteIncomeController::class, 'monthlyIncomeReport']
+        )->name('institute-income.monthly-report');
 
+        Route::get(
+            '/institute-income/monthly/excel',
+            [InstituteIncomeController::class, 'monthlyIncomeReportExcel']
+        )->name('institute-income.monthly.excel');
         /*
         |--------------------------------------------------------------------------
         | Extra Incomes
         |--------------------------------------------------------------------------
         */
 
-        Route::resource(
-            'extra-incomes',
-            ExtraIncomeController::class
-        );
+        Route::middleware('role:ADMIN')->group(function () {
+            Route::resource(
+                'extra-incomes',
+                ExtraIncomeController::class
+            );
+        });
 
         Route::resource(
             'temporary-id-cards',
@@ -917,6 +1047,11 @@ Route::middleware([
             'temporary-id-cards/download-pdf',
             [TemporaryIDCardController::class, 'downloadPdf']
         )->name('temporary-id-cards.download-pdf');
+
+        Route::get(
+            'temporary-id-cards/pdf',
+            [TemporaryIDCardController::class, 'downloadIdCardPdf']
+        )->name('temporary-id-cards.pdf');
         /*
 |--------------------------------------------------------------------------
 | Daily Reports
@@ -955,11 +1090,7 @@ Route::middleware([
             '/pdf/teacher/teacher-salary-report/pdf',
             [MonthlyReportController::class, 'TeacherSalaryReportPdf']
         )->name('teacher.salary.report.pdf');
-        /*
-|--------------------------------------------------------------------------
-| Institute Expenses
-|--------------------------------------------------------------------------
-*/
+
 
         Route::get('/student-images', [StudentImageController::class, 'index'])
             ->name('student-images.index');
@@ -967,42 +1098,26 @@ Route::middleware([
         Route::post('/student-images/{quickPhoto}/assign', [StudentImageController::class, 'assign'])
             ->name('student-images.assign');
 
-        Route::resource(
-            'institute-expenses',
-            InstituteExpenseController::class
-        );
+        /*
+|--------------------------------------------------------------------------
+| Institute Expenses
+|--------------------------------------------------------------------------
+*/
 
-        Route::patch(
-            'institute-expenses/{instituteExpense}/toggle-status',
-            [InstituteExpenseController::class, 'toggleStatus']
-        )->name('institute-expenses.toggle-status');
+        Route::middleware('role:ADMIN')->group(function () {
 
+            Route::resource(
+                'institute-expenses',
+                InstituteExpenseController::class
+            );
 
-        Route::prefix('student-id-cards')
-            ->name('student-id-cards.')
-            ->group(function () {
-
-                // View routes
-                Route::get('/', [StudentIDCardController::class, 'index'])
-                    ->name('index');
-
-                Route::get('{studentIdCard}/print', [StudentIDCardController::class, 'print'])
-                    ->name('print');
-
-                // Download routes (NO Browsershot - Client side)
-                Route::get('{studentIdCard}/download', [StudentIDCardController::class, 'downloadSingle'])
-                    ->name('download-single');
-
-                Route::post('download-bulk', [StudentIDCardController::class, 'downloadBulk'])
-                    ->name('download-bulk');
-
-                // Status update routes (using Fetch API)
-                Route::patch('{studentIdCard}/status', [StudentIDCardController::class, 'updateStatus'])
-                    ->name('update-status');
-
-                Route::patch('bulk-status', [StudentIDCardController::class, 'bulkUpdateStatus'])
-                    ->name('bulk-update-status');
-            });
+            Route::patch(
+                'institute-expenses/{instituteExpense}/toggle-status',
+                [InstituteExpenseController::class, 'toggleStatus']
+            )->name(
+                'institute-expenses.toggle-status'
+            );
+        });
 
         Route::get('/today-attendance', [TodayAttendanceController::class, 'index'])
             ->name('today-attendance.index');
@@ -1035,24 +1150,23 @@ Route::middleware([
             [MonthlyReportController::class, 'TeacherWithStudentPaymentDateReportPdf']
         )->name('teacher.student.payment.report.pdf');
 
-        // Report Page
+        // Institute Reports
         Route::get(
             '/institute-reports',
             [InstituteReportController::class, 'index']
         )->name('institute-reports.index');
 
-        // PDF Download
+        // Institute Financial Report - PDF
         Route::get(
             '/institute-reports/pdf',
             [InstituteReportController::class, 'institutePaymentReportPdf']
         )->name('institute-reports.pdf');
 
-        // Excel Download
+        // Institute Financial Report - Excel
         Route::get(
             '/institute-reports/excel',
             [InstituteReportController::class, 'institutePaymentReportExcel']
         )->name('institute-reports.excel');
-
 
         /*
 |--------------------------------------------------------------------------
@@ -1075,14 +1189,16 @@ Route::middleware([
 |--------------------------------------------------------------------------
 */
 
-        Route::get('setting', [DatabaseBackupController::class, 'index'])
-            ->name('setting.index');
+        Route::middleware('role:ADMIN')->group(function () {
+            Route::get('setting', [DatabaseBackupController::class, 'index'])
+                ->name('setting.index');
 
-        Route::get('setting/backup/export', [DatabaseBackupController::class, 'export'])
-            ->name('setting.backup.export');
+            Route::get('setting/backup/export', [DatabaseBackupController::class, 'export'])
+                ->name('setting.backup.export');
 
-        Route::post('setting/backup/import', [DatabaseBackupController::class, 'import'])
-            ->name('setting.backup.import');
+            Route::post('setting/backup/import', [DatabaseBackupController::class, 'import'])
+                ->name('setting.backup.import');
+        });
 
         /*
 |--------------------------------------------------------------------------
@@ -1098,6 +1214,7 @@ Route::middleware([
         // Notification Routes
         Route::prefix('notifications')
             ->name('notifications.')
+            ->middleware('role:ADMIN,USER')
             ->group(function () {
 
                 // List all notifications
@@ -1156,6 +1273,7 @@ Route::middleware([
         // ============================================
         Route::prefix('fcm-tokens')
             ->name('fcm-tokens.')
+            ->middleware('role:ADMIN')
             ->group(function () {
 
                 // List all tokens
@@ -1206,41 +1324,99 @@ Route::middleware([
         Route::prefix('student-class-management')
             ->name('student-class-management.')
             ->controller(StudentClassManagementController::class)
+            ->middleware('role:ADMIN,USER')
             ->group(function () {
 
+                // =====================================================
                 // Main page
-                Route::get('/', 'index')->name('index');
+                // =====================================================
+                Route::get('/', 'index')
+                    ->name('index');
 
-                // ✅ Search - Support both GET and POST
+
+                // =====================================================
+                // Search Student
+                // =====================================================
                 Route::match(['GET', 'POST'], '/search-student', 'searchStudentClasses')
                     ->name('search');
 
-                // OR use ANY (supports all methods)
-                // Route::any('/search-student', 'searchStudentClasses')->name('search');
 
-                // Show student classes
-                Route::get('/student/{studentId}', 'showStudentClasses')->name('show');
+                // =====================================================
+                // Show Student Classes
+                // =====================================================
+                Route::get('/student/{studentId}', 'showStudentClasses')
+                    ->name('show');
 
-                // Toggle status - PUT
-                Route::put('/{enrollmentId}/toggle-status', 'toggleClassStatus')->name('toggle-status');
 
-                // Deactivate - PUT
-                Route::put('/{enrollmentId}/deactivate', 'deactivateClass')->name('deactivate');
+                // =====================================================
+                // Student Class Status
+                // =====================================================
 
-                // Activate - PUT
-                Route::put('/{enrollmentId}/activate', 'activateClass')->name('activate');
+                // Toggle status
+                Route::put('/{enrollmentId}/toggle-status', 'toggleClassStatus')
+                    ->name('toggle-status');
 
-                // Toggle all - PUT
-                Route::put('/student/{studentId}/toggle-all', 'toggleAllClassesStatus')->name('toggle-all');
+                // Deactivate
+                Route::put('/{enrollmentId}/deactivate', 'deactivateClass')
+                    ->name('deactivate');
 
-                // Assign form - GET
-                Route::get('/assign/{studentId?}', 'showAssignClassForm')->name('assign-form');
+                // Activate
+                Route::put('/{enrollmentId}/activate', 'activateClass')
+                    ->name('activate');
 
-                // Assign store - POST
-                Route::post('/assign', 'assignClassToStudent')->name('assign');
 
-                // Get category fees - GET (AJAX)
-                Route::get('/class/{classId}/category-fees', 'getCategoryFees')->name('get-category-fees');
+                // =====================================================
+                // Toggle All Student Classes
+                // =====================================================
+                Route::put('/student/{studentId}/toggle-all', 'toggleAllClassesStatus')
+                    ->name('toggle-all');
+
+
+                // =====================================================
+                // Assign Class
+                // =====================================================
+
+                // Assign form
+                Route::get('/assign/{studentId?}', 'showAssignClassForm')
+                    ->name('assign-form');
+
+                // Assign class
+                Route::post('/assign', 'assignClassToStudent')
+                    ->name('assign');
+
+
+                // =====================================================
+                // Category Fees AJAX
+                // =====================================================
+                Route::get('/class/{classId}/category-fees', 'getCategoryFees')
+                    ->name('get-category-fees');
+
+
+                // =====================================================
+                // PAYMENT
+                // =====================================================
+                Route::get(
+                    '/student/{studentId}/class/{studentClassId}/enrollment/{enrollmentId}/payment',
+                    'payment'
+                )->name('payment');
+
+
+                // =====================================================
+                // ATTENDANCE
+                // =====================================================
+                Route::get(
+                    '/student/{studentId}/class/{studentClassId}/enrollment/{enrollmentId}/attendance',
+                    'attendance'
+                )->name('attendance');
+
+
+                // =====================================================
+                // TUTE
+                // =====================================================
+                Route::get(
+                    '/student/{studentId}/class/{studentClassId}/enrollment/{enrollmentId}/tute',
+                    'tute'
+                )->name('tute');
             });
 
         /*
@@ -1249,7 +1425,9 @@ Route::middleware([
 |--------------------------------------------------------------------------
 */
 
-        Route::resource('users', UserController::class);
+        Route::middleware('role:ADMIN')->group(function () {
+            Route::resource('users', UserController::class);
+        });
 
         // Toggle Active Status
         Route::patch(
@@ -1303,38 +1481,41 @@ Route::middleware([
             [UserController::class, 'getStats']
         )->name('api.users.stats');
 
-        Route::prefix('student-cards')->name('student-cards.')->group(function () {
+        Route::prefix('student-cards')
+            ->name('student-cards.')
+            ->middleware('role:ADMIN,USER')
+            ->group(function () {
 
-            Route::get('/', [StudentCardController::class, 'index'])->name('index');
+                Route::get('/', [StudentCardController::class, 'index'])->name('index');
 
-            Route::get('/available', [StudentCardController::class, 'available'])->name('available');
+                Route::get('/available', [StudentCardController::class, 'available'])->name('available');
 
-            Route::get('/search', [StudentCardController::class, 'search'])->name('search');
+                Route::get('/search', [StudentCardController::class, 'search'])->name('search');
 
-            Route::get('/students/check-current-card', [StudentCardController::class, 'checkCurrentCard'])
-                ->name('students.check-current-card');
+                Route::get('/students/check-current-card', [StudentCardController::class, 'checkCurrentCard'])
+                    ->name('students.check-current-card');
 
-            Route::get('/generate', [StudentCardController::class, 'generate'])->name('generate');
-            Route::post('/generate', [StudentCardController::class, 'generateCards'])->name('generate.store');
+                Route::get('/generate', [StudentCardController::class, 'generate'])->name('generate');
+                Route::post('/generate', [StudentCardController::class, 'generateCards'])->name('generate.store');
 
-            Route::get('/assign-form', [StudentCardController::class, 'assignForm'])->name('assign.form');
-            Route::post('/assign', [StudentCardController::class, 'assign'])->name('assign');
+                Route::get('/assign-form', [StudentCardController::class, 'assignForm'])->name('assign.form');
+                Route::post('/assign', [StudentCardController::class, 'assign'])->name('assign');
 
-            Route::get('/history/{student}', [StudentCardController::class, 'history'])->name('history');
+                Route::get('/history/{student}', [StudentCardController::class, 'history'])->name('history');
 
-            // ✅ Preview Route
-            Route::get('/preview', [StudentCardController::class, 'preview'])
-                ->name('preview');
+                // ✅ Preview Route
+                Route::get('/preview', [StudentCardController::class, 'preview'])
+                    ->name('preview');
 
-            Route::get('/{card}', [StudentCardController::class, 'show'])->name('show');
+                Route::get('/{card}', [StudentCardController::class, 'show'])->name('show');
 
-            Route::get('/{card}/replace', [StudentCardController::class, 'replaceForm'])->name('replace.form');
-            Route::post('/{card}/replace', [StudentCardController::class, 'replace'])->name('replace');
+                Route::get('/{card}/replace', [StudentCardController::class, 'replaceForm'])->name('replace.form');
+                Route::post('/{card}/replace', [StudentCardController::class, 'replace'])->name('replace');
 
-            Route::patch('/{card}/lost', [StudentCardController::class, 'markLost'])->name('lost');
-            Route::patch('/{card}/damaged', [StudentCardController::class, 'markDamaged'])->name('damaged');
-            Route::patch('/{card}/deactivate', [StudentCardController::class, 'deactivate'])->name('deactivate');
-        });
+                Route::patch('/{card}/lost', [StudentCardController::class, 'markLost'])->name('lost');
+                Route::patch('/{card}/damaged', [StudentCardController::class, 'markDamaged'])->name('damaged');
+                Route::patch('/{card}/deactivate', [StudentCardController::class, 'deactivate'])->name('deactivate');
+            });
 
         /*
 |--------------------------------------------------------------------------
@@ -1344,6 +1525,7 @@ Route::middleware([
 
         Route::prefix('student-card-registration')
             ->name('student-card-registration.')
+            ->middleware('role:ADMIN,USER')
             ->group(function () {
 
                 // Registration Form
@@ -1357,5 +1539,133 @@ Route::middleware([
                     '/',
                     [StudentCardRegistrationController::class, 'store']
                 )->name('store');
+            });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Payment Reminder
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('payment-reminder')
+            ->name('payment-reminder.')
+            ->controller(PaymentReminderController::class)
+            ->middleware(['auth', 'user.active', 'role:ADMIN,USER'])
+            ->group(function () {
+
+                Route::get('/', 'index')
+                    ->name('index');
+
+                Route::get('/categories', 'getCategories')
+                    ->name('categories');
+
+                Route::get('/unpaid', 'getUnpaid')
+                    ->name('unpaid');
+
+                Route::get('/paid', 'getPaid')
+                    ->name('paid');
+
+                Route::get('/summary', 'getSummary')
+                    ->name('summary');
+
+                Route::post('/send', 'sendReminder')
+                    ->name('send');
+
+                Route::get('/export-unpaid', 'exportUnpaid')
+                    ->name('export-unpaid');
+
+                Route::get('/export-all', 'exportAll')
+                    ->name('export-all');
+            });
+
+        /*
+|--------------------------------------------------------------------------
+| Payment Collection Report
+|--------------------------------------------------------------------------
+*/
+
+        Route::middleware('role:ADMIN')->group(function () {
+
+            Route::get(
+                '/payment-collection-report',
+                [PaymentCollectionReportController::class, 'index']
+            )->name('payment-collection-report.index');
+            Route::get(
+                '/payment-collection-report/export',
+                [PaymentCollectionReportController::class, 'export']
+            )->name('payment-collection-report.export');
+        });
+
+        Route::middleware('role:ADMIN')->group(function () {
+
+            Route::get(
+                '/monthly-class-attendance-report',
+                [MonthlyClassAttendanceReportController::class, 'index']
+            )->name('monthly-class-attendance-report.index');
+
+            Route::get(
+                '/monthly-class-attendance-report/export',
+                [MonthlyClassAttendanceReportController::class, 'export']
+            )->name('monthly-class-attendance-report.export');
+        });
+
+        Route::prefix('class-category-fee-options')
+            ->name('class-category-fee-options.')
+            ->group(function () {
+
+                Route::get(
+                    '/{classCategoryFeeId}',
+                    [ClassCategoryFeeOptionController::class, 'index']
+                )->name('index');
+
+                Route::get(
+                    '/{classCategoryFeeId}/create',
+                    [ClassCategoryFeeOptionController::class, 'create']
+                )->name('create');
+
+                Route::post(
+                    '/{classCategoryFeeId}',
+                    [ClassCategoryFeeOptionController::class, 'store']
+                )->name('store');
+
+                Route::get(
+                    '/option/{id}/edit',
+                    [ClassCategoryFeeOptionController::class, 'edit']
+                )->name('edit');
+
+                Route::put(
+                    '/option/{id}',
+                    [ClassCategoryFeeOptionController::class, 'update']
+                )->name('update');
+
+                Route::delete(
+                    '/option/{id}',
+                    [ClassCategoryFeeOptionController::class, 'destroy']
+                )->name('destroy');
+
+                Route::post(
+                    '/option/{id}/restore',
+                    [ClassCategoryFeeOptionController::class, 'restore']
+                )->name('restore');
+
+                Route::post(
+                    '/option/{id}/set-default',
+                    [ClassCategoryFeeOptionController::class, 'setDefault']
+                )->name('set-default');
+
+                Route::post(
+                    '/option/{id}/activate',
+                    [ClassCategoryFeeOptionController::class, 'activate']
+                )->name('activate');
+
+                Route::post(
+                    '/option/{id}/deactivate',
+                    [ClassCategoryFeeOptionController::class, 'deactivate']
+                )->name('deactivate');
+
+                Route::get(
+                    'class-category-fees/{classCategoryFee}/fee-options',
+                    [ClassCategoryFeeController::class, 'feeOptions']
+                )->name('admin.class-category-fees.fee-options');
             });
     });

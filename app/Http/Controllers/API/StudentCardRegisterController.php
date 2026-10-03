@@ -107,10 +107,10 @@ class StudentCardRegisterController extends Controller
             );
 
             // Create Student ID Card
-            $this->studentService->createStudentIdCard(
-                $student,
-                'completed'
-            );
+            // $this->studentService->createStudentIdCard(
+            //     $student,
+            //     'completed'
+            // );
 
             // Create Admission Payment
             $admissionPayment = null;

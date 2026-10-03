@@ -59,7 +59,7 @@
                                     }
                                 @endphp
                                 <img src="{{ $fullImageUrl }}" 
-                                     alt="{{ $card->student->full_name }}" 
+                                     alt="{{ $card->student->initial_name }}" 
                                      class="rounded-circle border border-3 border-white shadow-sm"
                                      style="width: 100px; height: 100px; object-fit: cover;"
                                      onerror="this.onerror=null; this.src='{{ asset('images/default-avatar.png') }}';">
@@ -93,7 +93,7 @@
                         </div>
                         
                         <h4 class="fw-bold mt-3 mb-1 text-white">
-                            {{ $card->student ? $card->student->full_name : 'Not Assigned' }}
+                            {{ $card->student ? $card->student->initial_name : 'Not Assigned' }}
                         </h4>
                         @if($card->student)
                             <p class="text-white-50 mb-0">
@@ -406,7 +406,7 @@
                 @endif
 
                 {{-- Actions --}}
-                <div class="col-12">
+                {{-- <div class="col-12">
                     <div class="card shadow-sm border-0 rounded-4">
                         <div class="card-header bg-white border-0 pt-4">
                             <h5 class="mb-0 fw-bold">
@@ -458,7 +458,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

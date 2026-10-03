@@ -25,16 +25,33 @@ class CategoryStudentsExport implements FromCollection
     {
         $rows = collect();
 
-        $rows->push(['Class', $this->studentClass->class_name]);
-        $rows->push(['Grade', optional($this->studentClass->grade)->grade_name ?? '-']);
-        $rows->push(['Subject', optional($this->studentClass->subject)->subject_name ?? '-']);
+        $rows->push([
+            'Class',
+            $this->studentClass->class_name
+        ]);
+
+        $rows->push([
+            'Grade',
+            optional($this->studentClass->grade)->grade_name ?: '-'
+        ]);
+
+        $rows->push([
+            'Subject',
+            optional($this->studentClass->subject)->subject_name ?: '-'
+        ]);
+
         $rows->push([
             'Teacher',
             optional($this->studentClass->teacher)->initials
-                ?? optional($this->studentClass->teacher)->full_name
-                ?? '-'
+                ?: optional($this->studentClass->teacher)->full_name
+                ?: '-'
         ]);
-        $rows->push(['Category', $this->classCategory->category_name]);
+
+        $rows->push([
+            'Category',
+            $this->classCategory->category_name
+        ]);
+
         $rows->push([]);
 
         $rows->push([
@@ -43,7 +60,8 @@ class CategoryStudentsExport implements FromCollection
             'Initial Name',
             'Full Name',
             'Mobile',
-            'Fee Type',
+            'Fee Option',
+            'Fee Option Fee',
             'Final Fee',
             'Status',
         ]);
@@ -61,26 +79,41 @@ class CategoryStudentsExport implements FromCollection
             ) {
                 $studentCode = $student->custom_id;
             } else {
-                $studentCode = $student->temporary_qr_code ?? '-';
+                $studentCode = $student
+                    ? ($student->temporary_qr_code ?: '-')
+                    : '-';
             }
 
-            $feeType = 'Default Fee';
+            $feeOption = $enrollment->classCategoryFeeOption;
 
             if ($enrollment->is_free_card) {
                 $feeType = 'Free Card';
-            } elseif (!is_null($enrollment->custom_fee)) {
-                $feeType = 'Custom Fee';
+                $feeOptionFee = 0;
+                $finalFee = 0;
+            } else {
+                $feeType = $feeOption
+                    ? $feeOption->label
+                    : 'N/A';
+
+                $feeOptionFee = $feeOption
+                    ? (float) $feeOption->fee
+                    : 0;
+
+                $finalFee = (float) $enrollment->final_fee;
             }
 
             $rows->push([
                 $index + 1,
                 $studentCode,
-                $student->initial_name ?? '-',
-                $student->full_name ?? '-',
-                $student->mobile ?? '-',
+                $student ? ($student->initial_name ?: '-') : '-',
+                $student ? ($student->full_name ?: '-') : '-',
+                $student ? ($student->mobile ?: '-') : '-',
                 $feeType,
-                $enrollment->final_fee,
-                $enrollment->is_active ? 'Active' : 'Inactive',
+                $feeOptionFee,
+                $finalFee,
+                $enrollment->is_active
+                    ? 'Active'
+                    : 'Inactive',
             ]);
         }
 

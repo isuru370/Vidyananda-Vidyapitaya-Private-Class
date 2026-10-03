@@ -612,9 +612,14 @@ class ClassScheduleController extends Controller
     public function todayClasses(Request $request)
     {
         $today = Carbon::today();
-        $search = trim($request->input('search', ''));
+
+        $search = trim(
+            $request->input('search', '')
+        );
+
 
         $classes = StudentClass::query()
+
             ->select([
                 'id',
                 'class_name',
@@ -626,132 +631,518 @@ class ClassScheduleController extends Controller
                 'is_active',
                 'is_ongoing',
             ])
+
             ->with([
+
+                /*
+            |--------------------------------------------------------------------------
+            | Grade
+            |--------------------------------------------------------------------------
+            */
+
                 'grade:id,grade_name',
+
+
+                /*
+            |--------------------------------------------------------------------------
+            | Subject
+            |--------------------------------------------------------------------------
+            */
+
                 'subject:id,subject_name',
+
+
+                /*
+            |--------------------------------------------------------------------------
+            | Teacher
+            |--------------------------------------------------------------------------
+            */
+
                 'teacher:id,full_name,mobile',
+
+
+                /*
+            |--------------------------------------------------------------------------
+            | Category Fees
+            |--------------------------------------------------------------------------
+            */
+
                 'categoryFees' => function ($query) {
-                    $query->select([
-                        'id',
-                        'student_class_id',
-                        'class_category_id',
-                        'fee',
-                        'is_active',
-                    ])
+
+                    $query
+                        ->select([
+                            'id',
+                            'student_class_id',
+                            'class_category_id',
+                            'is_active',
+                        ])
+
                         ->where('is_active', true)
+
                         ->with([
+
                             'category:id,category_name',
+
+                            /*
+                        |--------------------------------------------------------------------------
+                        | Active Fee Options
+                        |--------------------------------------------------------------------------
+                        */
+
+                            'activeFeeOptions' => function ($optionQuery) {
+
+                                $optionQuery
+                                    ->select([
+                                        'id',
+                                        'class_category_fee_id',
+                                        'label',
+                                        'fee',
+                                        'is_default',
+                                        'is_active',
+                                    ])
+                                    ->where('is_active', true)
+                                    ->orderByDesc('is_default')
+                                    ->orderBy('id');
+                            },
+
                         ]);
                 },
+
+
+                /*
+            |--------------------------------------------------------------------------
+            | Today's Schedules
+            |--------------------------------------------------------------------------
+            */
+
                 'schedules' => function ($query) use ($today) {
-                    $query->select([
-                        'id',
-                        'student_class_id',
-                        'class_category_fee_id',
-                        'class_schedule_pattern_id',
-                        'class_date',
-                        'start_time',
-                        'end_time',
-                        'status',
-                        'class_hall_id',
-                    ])
-                        ->whereDate('class_date', $today)
-                        ->whereNotIn('status', ['cancelled', 'completed'])
+
+                    $query
+                        ->select([
+                            'id',
+                            'student_class_id',
+                            'class_category_fee_id',
+                            'class_schedule_pattern_id',
+                            'class_date',
+                            'start_time',
+                            'end_time',
+                            'status',
+                            'class_hall_id',
+                        ])
+
+                        ->whereDate(
+                            'class_date',
+                            $today
+                        )
+
+                        ->whereNotIn(
+                            'status',
+                            [
+                                'cancelled',
+                                'completed',
+                            ]
+                        )
+
                         ->with([
                             'hall:id,hall_name,code',
                         ])
-                        ->orderBy('start_time');
+
+                        ->orderBy(
+                            'start_time'
+                        );
                 },
+
             ])
-            ->where('is_active', true)
-            ->where('is_ongoing', true)
-            ->whereHas('schedules', function ($query) use ($today) {
-                $query->whereDate('class_date', $today)
-                    ->whereNotIn('status', ['cancelled', 'completed']);
-            })
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('class_name', 'like', "%{$search}%")
-                        ->orWhere('class_type', 'like', "%{$search}%")
-                        ->orWhere('medium', 'like', "%{$search}%")
-                        ->orWhereHas('grade', function ($grade) use ($search) {
-                            $grade->where('grade_name', 'like', "%{$search}%");
-                        })
-                        ->orWhereHas('subject', function ($subject) use ($search) {
-                            $subject->where('subject_name', 'like', "%{$search}%");
-                        })
-                        ->orWhereHas('teacher', function ($teacher) use ($search) {
-                            $teacher->where('full_name', 'like', "%{$search}%")
-                                ->orWhere('mobile', 'like', "%{$search}%");
-                        })
-                        ->orWhereHas('categoryFees.category', function ($category) use ($search) {
-                            $category->where('category_name', 'like', "%{$search}%");
-                        });
-                });
-            })
+
+            ->where(
+                'is_active',
+                true
+            )
+
+            ->where(
+                'is_ongoing',
+                true
+            )
+
+            ->whereHas(
+                'schedules',
+                function ($query) use ($today) {
+
+                    $query
+                        ->whereDate(
+                            'class_date',
+                            $today
+                        )
+
+                        ->whereNotIn(
+                            'status',
+                            [
+                                'cancelled',
+                                'completed',
+                            ]
+                        );
+                }
+            )
+
+            ->when(
+                $search !== '',
+                function ($query) use ($search) {
+
+                    $query->where(
+                        function ($q) use ($search) {
+
+                            $q->where(
+                                'class_name',
+                                'like',
+                                "%{$search}%"
+                            )
+
+                                ->orWhere(
+                                    'class_type',
+                                    'like',
+                                    "%{$search}%"
+                                )
+
+                                ->orWhere(
+                                    'medium',
+                                    'like',
+                                    "%{$search}%"
+                                )
+
+                                ->orWhereHas(
+                                    'grade',
+                                    function ($grade) use ($search) {
+
+                                        $grade->where(
+                                            'grade_name',
+                                            'like',
+                                            "%{$search}%"
+                                        );
+                                    }
+                                )
+
+                                ->orWhereHas(
+                                    'subject',
+                                    function ($subject) use ($search) {
+
+                                        $subject->where(
+                                            'subject_name',
+                                            'like',
+                                            "%{$search}%"
+                                        );
+                                    }
+                                )
+
+                                ->orWhereHas(
+                                    'teacher',
+                                    function ($teacher) use ($search) {
+
+                                        $teacher
+                                            ->where(
+                                                'full_name',
+                                                'like',
+                                                "%{$search}%"
+                                            )
+
+                                            ->orWhere(
+                                                'mobile',
+                                                'like',
+                                                "%{$search}%"
+                                            );
+                                    }
+                                )
+
+                                ->orWhereHas(
+                                    'categoryFees.category',
+                                    function ($category) use ($search) {
+
+                                        $category->where(
+                                            'category_name',
+                                            'like',
+                                            "%{$search}%"
+                                        );
+                                    }
+                                );
+                        }
+                    );
+                }
+            )
+
             ->get();
 
-        // Mobile API එකේ structure එකට සමාන data structure එකක් හදනවා
-        $data = $classes->flatMap(function ($class) {
-            return $class->categoryFees->flatMap(function ($fee) use ($class) {
-                $matchedSchedules = $class->schedules->where('class_category_fee_id', $fee->id);
 
-                return $matchedSchedules->map(function ($schedule) use ($class, $fee) {
-                    return [
-                        'student_class' => [
-                            'id' => $class->id,
-                            'class_name' => $class->class_name,
-                            'class_type' => $class->class_type,
-                            'medium' => $class->medium,
-                            'grade' => $class->grade ? [
-                                'id' => $class->grade->id,
-                                'grade_name' => $class->grade->grade_name,
-                            ] : null,
-                            'subject' => $class->subject ? [
-                                'id' => $class->subject->id,
-                                'subject_name' => $class->subject->subject_name,
-                            ] : null,
-                            'teacher' => $class->teacher ? [
-                                'id' => $class->teacher->id,
-                                'full_name' => $class->teacher->full_name,
-                                'mobile' => $class->teacher->mobile,
-                            ] : null,
-                        ],
-                        'category_fee' => [
-                            'id' => $fee->id,
-                            'class_category_id' => $fee->class_category_id,
-                            'fee' => $fee->fee,
-                            'category' => $fee->category ? [
-                                'id' => $fee->category->id,
-                                'category_name' => $fee->category->category_name,
-                            ] : null,
-                        ],
-                        'schedule' => [
-                            'id' => $schedule->id,
-                            'class_category_fee_id' => $schedule->class_category_fee_id,
-                            'class_schedule_pattern_id' => $schedule->class_schedule_pattern_id,
-                            'class_date' => $schedule->class_date,
-                            'start_time' => $schedule->start_time,
-                            'end_time' => $schedule->end_time,
-                            'status' => $schedule->status,
-                            'hall' => $schedule->hall ? [
-                                'id' => $schedule->hall->id,
-                                'hall_name' => $schedule->hall->hall_name,
-                                'code' => $schedule->hall->code,
-                            ] : null,
-                        ],
-                    ];
-                });
-            });
-        })->sortBy(function ($row) {
-            return $row['schedule']['start_time'] ?? '';
-        })->values();
+        /*
+    |--------------------------------------------------------------------------
+    | Build Web / Mobile Compatible Data
+    |--------------------------------------------------------------------------
+    */
 
-        // Web view එකට data යවනවා (same structure as mobile API)
-        return view('admin.today-classes.index', [
-            'classes' => $data,
-            'today' => $today,
-        ]);
+        $data = $classes
+
+            ->flatMap(function ($class) {
+
+                return $class->categoryFees
+
+                    ->flatMap(function ($categoryFee) use ($class) {
+
+                        /*
+                    |--------------------------------------------------------------------------
+                    | Find schedules belonging to this category fee
+                    |--------------------------------------------------------------------------
+                    */
+
+                        $matchedSchedules =
+                            $class->schedules->where(
+                                'class_category_fee_id',
+                                $categoryFee->id
+                            );
+
+
+                        return $matchedSchedules
+
+                            ->map(function ($schedule) use (
+                                $class,
+                                $categoryFee
+                            ) {
+
+                                /*
+                            |--------------------------------------------------------------------------
+                            | Fee Options
+                            |--------------------------------------------------------------------------
+                            */
+
+                                $feeOptions =
+                                    $categoryFee->activeFeeOptions
+                                    ->map(function ($option) {
+
+                                        return [
+                                            'id' => $option->id,
+
+                                            'class_category_fee_id' =>
+                                            $option->class_category_fee_id,
+
+                                            'label' =>
+                                            $option->label,
+
+                                            'fee' =>
+                                            (float) $option->fee,
+
+                                            'is_default' =>
+                                            (bool) $option->is_default,
+
+                                            'is_active' =>
+                                            (bool) $option->is_active,
+                                        ];
+                                    })
+                                    ->values()
+                                    ->toArray();
+
+
+                                /*
+                            |--------------------------------------------------------------------------
+                            | Default Fee Option
+                            |--------------------------------------------------------------------------
+                            */
+
+                                $defaultFeeOption =
+                                    $categoryFee->activeFeeOptions
+                                    ->first(function ($option) {
+
+                                        return $option->is_default === true;
+                                    });
+
+
+                                return [
+
+                                    /*
+                                |--------------------------------------------------------------------------
+                                | Student Class
+                                |--------------------------------------------------------------------------
+                                */
+
+                                    'student_class' => [
+
+                                        'id' =>
+                                        $class->id,
+
+                                        'class_name' =>
+                                        $class->class_name,
+
+                                        'class_type' =>
+                                        $class->class_type,
+
+                                        'medium' =>
+                                        $class->medium,
+
+                                        'grade' =>
+                                        $class->grade
+                                            ? [
+                                                'id' =>
+                                                $class->grade->id,
+
+                                                'grade_name' =>
+                                                $class->grade->grade_name,
+                                            ]
+                                            : null,
+
+                                        'subject' =>
+                                        $class->subject
+                                            ? [
+                                                'id' =>
+                                                $class->subject->id,
+
+                                                'subject_name' =>
+                                                $class->subject->subject_name,
+                                            ]
+                                            : null,
+
+                                        'teacher' =>
+                                        $class->teacher
+                                            ? [
+                                                'id' =>
+                                                $class->teacher->id,
+
+                                                'full_name' =>
+                                                $class->teacher->full_name,
+
+                                                'mobile' =>
+                                                $class->teacher->mobile,
+                                            ]
+                                            : null,
+                                    ],
+
+
+                                    /*
+                                |--------------------------------------------------------------------------
+                                | Category Fee
+                                |--------------------------------------------------------------------------
+                                */
+
+                                    'category_fee' => [
+
+                                        'id' =>
+                                        $categoryFee->id,
+
+                                        'class_category_id' =>
+                                        $categoryFee->class_category_id,
+
+                                        'category' =>
+                                        $categoryFee->category
+                                            ? [
+                                                'id' =>
+                                                $categoryFee->category->id,
+
+                                                'category_name' =>
+                                                $categoryFee->category->category_name,
+                                            ]
+                                            : null,
+
+                                        /*
+                                    |--------------------------------------------------------------------------
+                                    | All Active Fee Options
+                                    |--------------------------------------------------------------------------
+                                    */
+
+                                        'fee_options' =>
+                                        $feeOptions,
+
+                                        /*
+                                    |--------------------------------------------------------------------------
+                                    | Default Fee Option
+                                    |--------------------------------------------------------------------------
+                                    */
+
+                                        'default_fee_option' =>
+                                        $defaultFeeOption
+                                            ? [
+                                                'id' =>
+                                                $defaultFeeOption->id,
+
+                                                'label' =>
+                                                $defaultFeeOption->label,
+
+                                                'fee' =>
+                                                (float) $defaultFeeOption->fee,
+
+                                                'is_default' =>
+                                                (bool) $defaultFeeOption->is_default,
+
+                                                'is_active' =>
+                                                (bool) $defaultFeeOption->is_active,
+                                            ]
+                                            : null,
+                                    ],
+
+
+                                    /*
+                                |--------------------------------------------------------------------------
+                                | Schedule
+                                |--------------------------------------------------------------------------
+                                */
+
+                                    'schedule' => [
+
+                                        'id' =>
+                                        $schedule->id,
+
+                                        'class_category_fee_id' =>
+                                        $schedule->class_category_fee_id,
+
+                                        'class_schedule_pattern_id' =>
+                                        $schedule->class_schedule_pattern_id,
+
+                                        'class_date' =>
+                                        $schedule->class_date,
+
+                                        'start_time' =>
+                                        $schedule->start_time,
+
+                                        'end_time' =>
+                                        $schedule->end_time,
+
+                                        'status' =>
+                                        $schedule->status,
+
+                                        'hall' =>
+                                        $schedule->hall
+                                            ? [
+                                                'id' =>
+                                                $schedule->hall->id,
+
+                                                'hall_name' =>
+                                                $schedule->hall->hall_name,
+
+                                                'code' =>
+                                                $schedule->hall->code,
+                                            ]
+                                            : null,
+                                    ],
+                                ];
+                            });
+                    });
+            })
+
+            ->sortBy(function ($row) {
+
+                return $row['schedule']['start_time'] ?? '';
+            })
+
+            ->values();
+
+
+        /*
+    |--------------------------------------------------------------------------
+    | Return View
+    |--------------------------------------------------------------------------
+    */
+
+        return view(
+            'admin.today-classes.index',
+            [
+                'classes' => $data,
+                'today' => $today,
+            ]
+        );
     }
 
     public function statusUpdate(ClassSchedule $classSchedule)
@@ -873,7 +1264,6 @@ class ClassScheduleController extends Controller
 
                 $this->classScheduleService
                     ->regenerateFutureSchedules($pattern);
-
             });
 
             return redirect()->route(

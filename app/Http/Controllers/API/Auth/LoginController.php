@@ -34,7 +34,9 @@ class LoginController extends Controller
             ], 401);
         }
 
-        $token = $result['user']
+        $user = $result['user']->load('userType');
+
+        $token = $user
             ->createToken('mobile-token')
             ->plainTextToken;
 
@@ -42,7 +44,7 @@ class LoginController extends Controller
             'status' => 'success',
             'message' => 'Login successful',
             'token' => $token,
-            'user' => $result['user'],
+            'user' => $user,
         ], 200);
     }
 
