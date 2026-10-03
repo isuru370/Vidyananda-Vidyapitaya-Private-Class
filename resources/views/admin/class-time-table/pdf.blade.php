@@ -293,7 +293,7 @@
                 <th>Class Name</th>
                 <th>Grade</th>
                 <th>Category</th>
-                <th>Fee</th>
+                <th>Fee Options</th>
                 <th>Status</th>
             </tr>
         </thead>
@@ -326,12 +326,18 @@
                     <td>{{ $schedule->classCategoryFee->category->category_name ?? '-' }}</td>
                     <td class="text-right amount">
                         @php
-                            $fee = $schedule->classCategoryFee->fee ?? 0;
+                            $feeOptions = optional($schedule->classCategoryFee)->activeFeeOptions;
                         @endphp
-                        @if($fee > 0)
-                            Rs. {{ number_format($fee, 2) }}
+
+                        @if($feeOptions && $feeOptions->count() > 0)
+                            @foreach($feeOptions as $feeOption)
+                                <div style="margin-bottom: 3px;">
+                                    <strong>{{ $feeOption->label }}</strong><br>
+                                    <span>Rs. {{ number_format((float) $feeOption->fee, 2) }}</span>
+                                </div>
+                            @endforeach
                         @else
-                            Free
+                            -
                         @endif
                     </td>
                     <td class="text-center">

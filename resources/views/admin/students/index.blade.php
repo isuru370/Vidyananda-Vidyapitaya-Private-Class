@@ -123,13 +123,13 @@
 
                 <div class="header-buttons">
 
-                    <a href="{{ route('admin.students.create') }}" class="btn btn-primary custom-btn">
+                    {{-- <a href="{{ route('admin.students.create') }}" class="btn btn-primary custom-btn">
 
                         <i class="bi bi-plus-lg"></i>
 
                         Add Student
 
-                    </a>
+                    </a> --}}
 
                     <a href="{{ route('admin.student-card-registration.create') }}" class="btn btn-primary custom-btn">
 
@@ -162,14 +162,14 @@
 
                     </a>
 
-                    <a href="{{ route('admin.students.studentTemporaryCardExpiredSoon') }}"
+                    {{-- <a href="{{ route('admin.students.studentTemporaryCardExpiredSoon') }}"
                         class="btn btn-warning custom-btn">
 
                         <i class="bi bi-exclamation-triangle-fill"></i>
 
                         Expiring QR
 
-                    </a>
+                    </a> --}}
 
                 </div>
 

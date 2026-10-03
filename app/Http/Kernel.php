@@ -59,6 +59,7 @@ class Kernel extends HttpKernel
 
         // Role Based
         'role' => \App\Http\Middleware\CheckUserRole::class,
+        'permission' => \App\Http\Middleware\CheckUserPermission::class,
 
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,

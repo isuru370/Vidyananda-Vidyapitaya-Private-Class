@@ -107,9 +107,12 @@
             <option value="">Select User Type</option>
 
             @foreach ($userTypes as $userType)
-                <option value="{{ $userType->id }}" {{ old('user_type_id', $systemUser?->user?->user_type_id ?? '') == $userType->id ? 'selected' : '' }}>
-                    {{ $userType->name }}
-                </option>
+                @if ($userType->code !== 'SUPER_ADMIN')
+                    <option value="{{ $userType->id }}"
+                        {{ old('user_type_id', $systemUser?->user?->user_type_id ?? '') == $userType->id ? 'selected' : '' }}>
+                        {{ $userType->name }}
+                    </option>
+                @endif
             @endforeach
 
         </select>
@@ -124,12 +127,12 @@
     <div class="col-lg-6">
         <label class="form-label">
             Password
-            @if(isset($systemUser))
+            @if (isset($systemUser))
                 <small class="text-muted">(leave blank to keep current password)</small>
             @endif
         </label>
         <input type="password" name="password" class="form-control custom-input @error('password') is-invalid @enderror"
-            @if(!isset($systemUser)) required @endif>
+            @if (!isset($systemUser)) required @endif>
         @error('password')
             <div class="invalid-feedback d-block">{{ $message }}</div>
         @enderror
@@ -137,8 +140,7 @@
 
     <div class="col-12">
         <label class="form-label">Note</label>
-        <textarea name="note" rows="4"
-            class="form-control custom-input @error('note') is-invalid @enderror">{{ old('note', $systemUser?->note ?? '') }}</textarea>
+        <textarea name="note" rows="4" class="form-control custom-input @error('note') is-invalid @enderror">{{ old('note', $systemUser?->note ?? '') }}</textarea>
         @error('note')
             <div class="invalid-feedback d-block">{{ $message }}</div>
         @enderror

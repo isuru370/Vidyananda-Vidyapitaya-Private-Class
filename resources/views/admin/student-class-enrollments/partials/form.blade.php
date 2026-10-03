@@ -8,309 +8,1070 @@
     </div>
 @endif
 
+
 <div class="row">
+
+    {{-- =========================================================
+        STUDENT
+    ========================================================== --}}
     <div class="col-md-6 mb-3">
-        <label class="form-label">Student</label>
 
-        @if($enrollment->exists)
-            <input type="hidden" name="student_id" value="{{ $enrollment->student_id }}">
+        <label for="student_id" class="form-label">
+            Student
+        </label>
 
-            <input type="text" class="form-control"
-                value="{{ $enrollment->student?->custom_id }} - {{ $enrollment->student?->initial_name }}" readonly>
+        @if ($enrollment->exists)
+
+            <input type="hidden"
+                   name="student_id"
+                   value="{{ $enrollment->student_id }}">
+
+            <input type="text"
+                   class="form-control"
+                   value="{{ $enrollment->student->custom_id ?? '-' }}
+                       - {{ $enrollment->student->initial_name ?? '-' }}"
+                   readonly>
+
         @else
-            <select name="student_id" id="student_id" class="form-control" required>
-                @if($enrollment->student)
-                    <option value="{{ $enrollment->student_id }}" selected>
-                        {{ $enrollment->student->custom_id }} - {{ $enrollment->student->initial_name }}
+
+            <select name="student_id"
+                    id="student_id"
+                    class="form-control"
+                    required>
+
+                @if ($enrollment->student)
+
+                    <option value="{{ $enrollment->student_id }}"
+                            selected>
+
+                        {{ $enrollment->student->custom_id }}
+                        -
+                        {{ $enrollment->student->initial_name }}
+
                     </option>
+
                 @endif
+
             </select>
+
         @endif
+
     </div>
 
+
+    {{-- =========================================================
+        CLASS
+    ========================================================== --}}
     <div class="col-md-6 mb-3">
-        <label class="form-label">Class</label>
 
-        @if($enrollment->exists)
-            <input type="hidden" name="student_class_id" value="{{ $enrollment->student_class_id }}">
+        <label for="student_class_id" class="form-label">
+            Class
+        </label>
 
-            <input type="text" class="form-control"
-                value="{{ $enrollment->studentClass?->class_name }} | Grade: {{ $enrollment->studentClass?->grade?->grade_name ?? '-' }} | Subject: {{ $enrollment->studentClass?->subject?->subject_name ?? '-' }} | Teacher: {{ $enrollment->studentClass?->teacher?->initials ?? '-' }}"
-                readonly>
+        @if ($enrollment->exists)
+
+            <input type="hidden"
+                   name="student_class_id"
+                   value="{{ $enrollment->student_class_id }}">
+
+            <input type="text"
+                   class="form-control"
+                   value="{{ $enrollment->studentClass->class_name ?? '-' }}
+                       | Grade:
+                       {{ optional($enrollment->studentClass->grade)->grade_name ?? '-' }}
+                       | Subject:
+                       {{ optional($enrollment->studentClass->subject)->subject_name ?? '-' }}
+                       | Teacher:
+                       {{ optional($enrollment->studentClass->teacher)->initials ?? '-' }}"
+                   readonly>
+
         @else
-            <select name="student_class_id" id="student_class_id" class="form-control" required>
-                @if($enrollment->studentClass)
-                    <option value="{{ $enrollment->student_class_id }}" selected>
+
+            <select name="student_class_id"
+                    id="student_class_id"
+                    class="form-control"
+                    required>
+
+                @if ($enrollment->studentClass)
+
+                    <option value="{{ $enrollment->student_class_id }}"
+                            selected>
+
                         {{ $enrollment->studentClass->class_name }}
-                        | Grade: {{ $enrollment->studentClass->grade?->grade_name ?? '-' }}
-                        | Subject: {{ $enrollment->studentClass->subject?->subject_name ?? '-' }}
-                        | Teacher: {{ $enrollment->studentClass->teacher?->initials ?? '-' }}
+
+                        |
+                        Grade:
+                        {{ optional($enrollment->studentClass->grade)->grade_name ?? '-' }}
+
+                        |
+                        Subject:
+                        {{ optional($enrollment->studentClass->subject)->subject_name ?? '-' }}
+
+                        |
+                        Teacher:
+                        {{ optional($enrollment->studentClass->teacher)->initials ?? '-' }}
+
                     </option>
+
                 @endif
+
             </select>
+
         @endif
+
     </div>
 
+
+    {{-- =========================================================
+        CATEGORY
+    ========================================================== --}}
     <div class="col-md-6 mb-3">
-        <label class="form-label">Category</label>
-        <select name="class_category_fee_id" id="class_category_fee_id" class="form-control" required>
-            @if($enrollment->classCategoryFee)
-                <option value="{{ $enrollment->class_category_fee_id }}" selected>
-                    {{ $enrollment->classCategoryFee?->category?->category_name }}
-                    - Rs. {{ number_format($enrollment->classCategoryFee?->fee ?? 0, 2) }}
+
+        <label for="class_category_fee_id" class="form-label">
+            Category
+        </label>
+
+        <select name="class_category_fee_id"
+                id="class_category_fee_id"
+                class="form-control"
+                required>
+
+            @if ($enrollment->classCategoryFee)
+
+                <option value="{{ $enrollment->class_category_fee_id }}"
+                        selected>
+
+                    {{ optional($enrollment->classCategoryFee->category)->category_name }}
+
                 </option>
+
             @else
-                <option value="">Select class first</option>
+
+                <option value="">
+                    Select class first
+                </option>
+
             @endif
+
         </select>
+
     </div>
 
-    <div class="col-md-3 mb-3">
-        <label class="form-label">Default Fee</label>
-        <input type="text" id="default_fee" class="form-control" readonly>
-    </div>
 
-    <div class="col-md-3 mb-3">
-        <label class="form-label">Free Card</label>
-        <select name="is_free_card" id="is_free_card" class="form-control">
-            <option value="0" {{ old('is_free_card', $enrollment->is_free_card) == 0 ? 'selected' : '' }}>No</option>
-            <option value="1" {{ old('is_free_card', $enrollment->is_free_card) == 1 ? 'selected' : '' }}>Yes</option>
-        </select>
-    </div>
-
-    <div class="col-md-3 mb-3">
-        <label class="form-label">Custom Fee</label>
-        <input type="number" step="0.01" name="custom_fee" id="custom_fee" class="form-control"
-            value="{{ old('custom_fee', $enrollment->custom_fee) }}">
-    </div>
-
+    {{-- =========================================================
+        FEE OPTION
+    ========================================================== --}}
     <div class="col-md-6 mb-3">
-        <label class="form-label">Custom Fee Reason</label>
 
-        <select name="custom_fee_reason" class="form-control">
-            <option value="">Select Reason</option>
+        <label for="class_category_fee_option_id"
+               class="form-label">
 
-            <option value="Student enrolled in multiple categories" {{ old('custom_fee_reason', $enrollment->custom_fee_reason) == 'Student enrolled in multiple categories' ? 'selected' : '' }}>
-                Student enrolled in multiple categories
+            Fee Option
+
+        </label>
+
+        <select name="class_category_fee_option_id"
+                id="class_category_fee_option_id"
+                class="form-control"
+                required>
+
+            <option value="">
+                Select category first
             </option>
 
-            <option value="Special Discount" {{ old('custom_fee_reason', $enrollment->custom_fee_reason) == 'Special Discount' ? 'selected' : '' }}>
-                Special Discount
-            </option>
+            @if (isset($feeOptions))
 
-            <option value="Scholarship" {{ old('custom_fee_reason', $enrollment->custom_fee_reason) == 'Scholarship' ? 'selected' : '' }}>
-                Scholarship
-            </option>
+                @foreach ($feeOptions as $option)
 
-            <option value="Sibling Discount" {{ old('custom_fee_reason', $enrollment->custom_fee_reason) == 'Sibling Discount' ? 'selected' : '' }}>
-                Sibling Discount
-            </option>
+                    <option value="{{ $option->id }}"
+                            data-fee="{{ $option->fee }}"
+                        {{ old(
+                            'class_category_fee_option_id',
+                            $enrollment->class_category_fee_option_id
+                        ) == $option->id ? 'selected' : '' }}>
 
-            <option value="Staff Child" {{ old('custom_fee_reason', $enrollment->custom_fee_reason) == 'Staff Child' ? 'selected' : '' }}>
-                Staff Child
-            </option>
+                        {{ $option->label }}
 
-            <option value="Promotional" {{ old('custom_fee_reason', $enrollment->custom_fee_reason) == 'Promotional' ? 'selected' : '' }}>
-                Promotional
-            </option>
+                        -
+                        Rs. {{ number_format($option->fee, 2) }}
 
-            <option value="Other" {{ old('custom_fee_reason', $enrollment->custom_fee_reason) == 'Other' ? 'selected' : '' }}>
-                Other
-            </option>
+                        @if ($option->is_default)
+                            (Default)
+                        @endif
+
+                    </option>
+
+                @endforeach
+
+            @endif
+
         </select>
+
     </div>
 
+
+    {{-- =========================================================
+        SELECTED FEE
+    ========================================================== --}}
     <div class="col-md-3 mb-3">
-        <label class="form-label">Discount %</label>
-        <input type="number" step="0.01" name="discount_percentage" id="discount_percentage" class="form-control"
-            value="{{ old('discount_percentage', $enrollment->discount_percentage) }}">
+
+        <label for="selected_fee"
+               class="form-label">
+
+            Selected Fee
+
+        </label>
+
+        <input type="text"
+               id="selected_fee"
+               class="form-control"
+               value="0.00"
+               readonly>
+
     </div>
 
-    <div class="col-md-6 mb-3">
-        <label class="form-label">Discount Reason</label>
 
-        <select name="discount_reason" class="form-control">
-            <option value="">Select Reason</option>
+    {{-- =========================================================
+        FREE CARD
+    ========================================================== --}}
+    <div class="col-md-3 mb-3">
 
-            <option value="Half Card" {{ old('discount_reason', $enrollment->discount_reason) == 'Half Card' ? 'selected' : '' }}>
-                Half Card
+        <label for="is_free_card"
+               class="form-label">
+
+            Free Card
+
+        </label>
+
+        <select name="is_free_card"
+                id="is_free_card"
+                class="form-control">
+
+            <option value="0"
+                {{ old(
+                    'is_free_card',
+                    $enrollment->is_free_card
+                ) == 0 ? 'selected' : '' }}>
+
+                No
+
             </option>
 
-            <option value="Special Discount" {{ old('discount_reason', $enrollment->discount_reason) == 'Special Discount' ? 'selected' : '' }}>
-                Special Discount
+            <option value="1"
+                {{ old(
+                    'is_free_card',
+                    $enrollment->is_free_card
+                ) == 1 ? 'selected' : '' }}>
+
+                Yes
+
             </option>
 
-            <option value="Scholarship" {{ old('discount_reason', $enrollment->discount_reason) == 'Scholarship' ? 'selected' : '' }}>
-                Scholarship
-            </option>
-
-            <option value="Sibling Discount" {{ old('discount_reason', $enrollment->discount_reason) == 'Sibling Discount' ? 'selected' : '' }}>
-                Sibling Discount
-            </option>
-
-            <option value="Staff Child" {{ old('discount_reason', $enrollment->discount_reason) == 'Staff Child' ? 'selected' : '' }}>
-                Staff Child
-            </option>
-
-            <option value="Promotional" {{ old('discount_reason', $enrollment->discount_reason) == 'Promotional' ? 'selected' : '' }}>
-                Promotional
-            </option>
-
-            <option value="Other" {{ old('discount_reason', $enrollment->discount_reason) == 'Other' ? 'selected' : '' }}>
-                Other
-            </option>
         </select>
+
     </div>
 
+
+    {{-- =========================================================
+        ENROLLED AT
+    ========================================================== --}}
     <div class="col-md-3 mb-3">
-        <label class="form-label">Final Fee</label>
-        <input type="text" id="final_fee" class="form-control" readonly>
+
+        <label for="enrolled_at"
+               class="form-label">
+
+            Enrolled At
+
+        </label>
+
+        <input type="date"
+               name="enrolled_at"
+               id="enrolled_at"
+               class="form-control"
+               value="{{ old(
+                   'enrolled_at',
+                   optional($enrollment->enrolled_at)->format('Y-m-d')
+               ) }}">
+
     </div>
 
-    @if($enrollment->exists)
+
+    {{-- =========================================================
+        ACTIVE STATUS
+    ========================================================== --}}
+    @if ($enrollment->exists)
+
         <div class="col-md-3 mb-3">
-            <label class="form-label">Active Status</label>
-            <select name="is_active" class="form-control">
-                <option value="1" {{ old('is_active', $enrollment->is_active) == 1 ? 'selected' : '' }}>Active</option>
-                <option value="0" {{ old('is_active', $enrollment->is_active) == 0 ? 'selected' : '' }}>Inactive</option>
+
+            <label for="is_active"
+                   class="form-label">
+
+                Active Status
+
+            </label>
+
+            <select name="is_active"
+                    id="is_active"
+                    class="form-control">
+
+                <option value="1"
+                    {{ old(
+                        'is_active',
+                        $enrollment->is_active
+                    ) == 1 ? 'selected' : '' }}>
+
+                    Active
+
+                </option>
+
+                <option value="0"
+                    {{ old(
+                        'is_active',
+                        $enrollment->is_active
+                    ) == 0 ? 'selected' : '' }}>
+
+                    Inactive
+
+                </option>
+
             </select>
+
         </div>
 
-        <div class="col-md-3 mb-3">
-            <label class="form-label">Left At</label>
-            <input type="date" name="left_at" class="form-control"
-                value="{{ old('left_at', optional($enrollment->left_at)->format('Y-m-d')) }}">
-        </div>
     @endif
 
+
+    {{-- =========================================================
+        LEFT AT
+    ========================================================== --}}
+    @if ($enrollment->exists)
+
+        <div class="col-md-3 mb-3">
+
+            <label for="left_at"
+                   class="form-label">
+
+                Left At
+
+            </label>
+
+            <input type="date"
+                   name="left_at"
+                   id="left_at"
+                   class="form-control"
+                   value="{{ old(
+                       'left_at',
+                       optional($enrollment->left_at)->format('Y-m-d')
+                   ) }}">
+
+        </div>
+
+    @endif
+
+
+    {{-- =========================================================
+        NOTE
+    ========================================================== --}}
     <div class="col-md-12 mb-3">
-        <label class="form-label">Note</label>
-        <textarea name="note" class="form-control" rows="3">{{ old('note', $enrollment->note) }}</textarea>
+
+        <label for="note"
+               class="form-label">
+
+            Note
+
+        </label>
+
+        <textarea name="note"
+                  id="note"
+                  class="form-control"
+                  rows="3">{{ old('note', $enrollment->note) }}</textarea>
+
     </div>
+
 </div>
 
+
+{{-- =============================================================
+    BUTTONS
+============================================================= --}}
 <div class="d-flex gap-2">
-    <button type="submit" class="btn btn-primary">
+
+    <button type="submit"
+            class="btn btn-primary">
+
         {{ $buttonText ?? 'Save' }}
+
     </button>
 
-    <a href="{{ route('admin.student-class-enrollments.index') }}" class="btn btn-secondary">
+    <a href="{{ route('admin.student-class-enrollments.index') }}"
+       class="btn btn-secondary">
+
         Cancel
+
     </a>
+
 </div>
 
+
+{{-- =============================================================
+    SELECT2 CSS
+============================================================= --}}
 @push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+        rel="stylesheet">
+
 @endpush
 
+
+{{-- =============================================================
+    SCRIPTS
+============================================================= --}}
 @push('scripts')
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <script>
-        function loadCategories(classId, selectedFeeId = null) {
-            $('#class_category_fee_id').html('<option value="">Loading...</option>');
-            $('#default_fee').val('');
-            $('#final_fee').val('');
 
-            if (!classId) {
-                $('#class_category_fee_id').html('<option value="">Select class first</option>');
-                return;
+    <script>
+
+        /*
+        |--------------------------------------------------------------------------
+        | Variables
+        |--------------------------------------------------------------------------
+        */
+
+        var categoryUrl =
+            "{{ url('admin/class-category-fees/by-class') }}";
+
+        var selectedClassId =
+            "{{ old(
+                'student_class_id',
+                $enrollment->student_class_id
+            ) }}";
+
+        var selectedCategoryId =
+            "{{ old(
+                'class_category_fee_id',
+                $enrollment->class_category_fee_id
+            ) }}";
+
+        var selectedOptionId =
+            "{{ old(
+                'class_category_fee_option_id',
+                $enrollment->class_category_fee_option_id
+            ) }}";
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Store Loaded Category Data
+        |--------------------------------------------------------------------------
+        |
+        | byClass() already returns:
+        |
+        | [
+        |   {
+        |       id,
+        |       category_id,
+        |       category_name,
+        |       fee_options: [...]
+        |   }
+        | ]
+        |
+        | Therefore we do NOT need another AJAX request for fee options.
+        |
+        */
+
+        var classCategoryData = [];
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Escape HTML
+        |--------------------------------------------------------------------------
+        */
+
+        function escapeHtml(value) {
+
+            if (value === null || value === undefined) {
+                return '';
             }
 
-            $.get("{{ url('admin/class-category-fees/by-class') }}/" + classId, function (data) {
-                $('#class_category_fee_id').html('<option value="">Select Category</option>');
-
-                data.forEach(function (item) {
-                    let selected = selectedFeeId == item.id ? 'selected' : '';
-
-                    $('#class_category_fee_id').append(
-                        `<option value="${item.id}" data-fee="${item.fee}" ${selected}>
-                                            ${item.category_name} - Rs. ${item.fee}
-                                        </option>`
-                    );
-                });
-
-                let fee = $('#class_category_fee_id option:selected').data('fee') || 0;
-                $('#default_fee').val(fee);
-                calculateFinalFee();
-            });
+            return $('<div>')
+                .text(value)
+                .html();
         }
 
-        $('#class_category_fee_id').on('change', function () {
-            let fee = $('#class_category_fee_id option:selected').data('fee') || 0;
-            $('#default_fee').val(fee);
-            calculateFinalFee();
-        });
 
-        $('#custom_fee, #discount_percentage, #is_free_card').on('input change', function () {
-            calculateFinalFee();
-        });
+        /*
+        |--------------------------------------------------------------------------
+        | Update Selected Fee
+        |--------------------------------------------------------------------------
+        */
 
-        function calculateFinalFee() {
-            let isFree = $('#is_free_card').val() == '1';
+        function updateSelectedFee() {
+
+            var selectedOption =
+                $('#class_category_fee_option_id option:selected');
+
+            var fee =
+                parseFloat(
+                    selectedOption.attr('data-fee')
+                ) || 0;
+
+            var isFree =
+                $('#is_free_card').val() == '1';
+
 
             if (isFree) {
-                $('#final_fee').val('0.00');
+
+                $('#selected_fee').val('0.00');
+
+            } else {
+
+                $('#selected_fee').val(
+                    fee.toFixed(2)
+                );
+
+            }
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Load Fee Options From Existing Data
+        |--------------------------------------------------------------------------
+        */
+
+        function loadFeeOptionsFromData(
+            feeOptions,
+            selectedOptionId
+        ) {
+
+            var $feeOption =
+                $('#class_category_fee_option_id');
+
+
+            $feeOption.html(
+                '<option value="">Select Fee Option</option>'
+            );
+
+            $('#selected_fee').val('0.00');
+
+
+            if (!feeOptions || feeOptions.length === 0) {
+
+                $feeOption.html(
+                    '<option value="">No fee options available</option>'
+                );
+
                 return;
             }
 
-            let defaultFee = parseFloat($('#default_fee').val()) || 0;
-            let customFee = parseFloat($('#custom_fee').val());
-            let baseFee = !isNaN(customFee) ? customFee : defaultFee;
-            let discount = parseFloat($('#discount_percentage').val()) || 0;
-            let finalFee = baseFee - (baseFee * discount / 100);
 
-            $('#final_fee').val(finalFee.toFixed(2));
+            $.each(
+                feeOptions,
+                function(index, item) {
+
+                    var selected =
+                        String(selectedOptionId) === String(item.id)
+                            ? 'selected'
+                            : '';
+
+                    var defaultText =
+                        item.is_default
+                            ? ' (Default)'
+                            : '';
+
+
+                    $feeOption.append(
+                        '<option value="' +
+                            escapeHtml(item.id) +
+                        '" ' +
+                            'data-fee="' +
+                            escapeHtml(item.fee) +
+                        '" ' +
+                            selected +
+                        '>' +
+                            escapeHtml(item.label) +
+                            ' - Rs. ' +
+                            parseFloat(item.fee).toFixed(2) +
+                            defaultText +
+                        '</option>'
+                    );
+
+                }
+            );
+
+
+            updateSelectedFee();
+
         }
 
-        $(document).ready(function () {
-            let selectedClassId = "{{ old('student_class_id', $enrollment->student_class_id) }}";
-            let selectedFeeId = "{{ old('class_category_fee_id', $enrollment->class_category_fee_id) }}";
 
-            @if(!$enrollment->exists)
-                $('#student_id').select2({
-                    placeholder: 'Search by Student ID, QR, Full Name, Initial Name',
-                    allowClear: true,
-                    ajax: {
-                        url: "{{ route('admin.students.search') }}",
-                        dataType: 'json',
-                        delay: 300,
-                        data: function (params) {
-                            return { q: params.term || '' };
-                        },
-                        processResults: function (data) {
-                            return { results: data };
-                        }
-                    }
-                });
+        /*
+        |--------------------------------------------------------------------------
+        | Render Categories
+        |--------------------------------------------------------------------------
+        */
 
-                $('#student_class_id').select2({
-                    placeholder: 'Search class',
-                    allowClear: true,
-                    ajax: {
-                        url: "{{ route('admin.student-classes.search') }}",
-                        dataType: 'json',
-                        delay: 300,
-                        data: function (params) {
-                            return { q: params.term || '' };
-                        },
-                        processResults: function (data) {
-                            return { results: data };
-                        }
-                    }
-                });
+        function renderCategories(
+            selectedCategoryId,
+            selectedOptionId
+        ) {
 
-                $('#student_class_id').on('change', function () {
-                    loadCategories($(this).val());
-                });
-            @endif
+            var $category =
+                $('#class_category_fee_id');
 
-                            if (selectedClassId) {
-                loadCategories(selectedClassId, selectedFeeId);
-            } else {
-                calculateFinalFee();
+
+            $category.html(
+                '<option value="">Select Category</option>'
+            );
+
+
+            if (
+                !classCategoryData ||
+                classCategoryData.length === 0
+            ) {
+
+                $('#class_category_fee_option_id').html(
+                    '<option value="">No categories available</option>'
+                );
+
+                $('#selected_fee').val('0.00');
+
+                return;
             }
-        });
+
+
+            $.each(
+                classCategoryData,
+                function(index, item) {
+
+                    var selected =
+                        String(selectedCategoryId) === String(item.id)
+                            ? 'selected'
+                            : '';
+
+
+                    $category.append(
+                        '<option value="' +
+                            escapeHtml(item.id) +
+                        '" ' +
+                            selected +
+                        '>' +
+                            escapeHtml(item.category_name) +
+                        '</option>'
+                    );
+
+                }
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Find Selected Category
+            |--------------------------------------------------------------------------
+            */
+
+            var selectedCategory =
+                classCategoryData.find(
+                    function(item) {
+
+                        return String(item.id) ===
+                            String(selectedCategoryId);
+
+                    }
+                );
+
+
+            if (selectedCategory) {
+
+                loadFeeOptionsFromData(
+                    selectedCategory.fee_options || [],
+                    selectedOptionId
+                );
+
+            } else {
+
+                $('#class_category_fee_option_id').html(
+                    '<option value="">Select category first</option>'
+                );
+
+                $('#selected_fee').val('0.00');
+
+            }
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Load Categories By Class
+        |--------------------------------------------------------------------------
+        */
+
+        function loadCategories(
+            classId,
+            selectedCategoryId,
+            selectedOptionId
+        ) {
+
+            $('#class_category_fee_id').html(
+                '<option value="">Loading...</option>'
+            );
+
+            $('#class_category_fee_option_id').html(
+                '<option value="">Select category first</option>'
+            );
+
+            $('#selected_fee').val('0.00');
+
+            classCategoryData = [];
+
+
+            if (!classId) {
+
+                $('#class_category_fee_id').html(
+                    '<option value="">Select class first</option>'
+                );
+
+                return;
+            }
+
+
+            $.ajax({
+
+                url:
+                    categoryUrl +
+                    '/' +
+                    classId,
+
+                type: 'GET',
+
+                dataType: 'json',
+
+                success: function(data) {
+
+                    classCategoryData =
+                        data || [];
+
+
+                    renderCategories(
+                        selectedCategoryId,
+                        selectedOptionId
+                    );
+
+                },
+
+                error: function(xhr) {
+
+                    console.error(
+                        'Failed to load class categories:',
+                        xhr
+                    );
+
+
+                    $('#class_category_fee_id').html(
+                        '<option value="">Failed to load categories</option>'
+                    );
+
+
+                    $('#class_category_fee_option_id').html(
+                        '<option value="">Select category first</option>'
+                    );
+
+
+                    $('#selected_fee').val('0.00');
+
+                }
+
+            });
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Category Changed
+        |--------------------------------------------------------------------------
+        */
+
+        $('#class_category_fee_id').on(
+            'change',
+            function() {
+
+                var categoryFeeId =
+                    $(this).val();
+
+
+                if (!categoryFeeId) {
+
+                    $('#class_category_fee_option_id').html(
+                        '<option value="">Select category first</option>'
+                    );
+
+                    $('#selected_fee').val('0.00');
+
+                    return;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Find Category From Already Loaded Data
+                |--------------------------------------------------------------------------
+                */
+
+                var selectedCategory =
+                    classCategoryData.find(
+                        function(item) {
+
+                            return String(item.id) ===
+                                String(categoryFeeId);
+
+                        }
+                    );
+
+
+                if (!selectedCategory) {
+
+                    $('#class_category_fee_option_id').html(
+                        '<option value="">No fee options available</option>'
+                    );
+
+                    $('#selected_fee').val('0.00');
+
+                    return;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Load Fee Options
+                |--------------------------------------------------------------------------
+                */
+
+                loadFeeOptionsFromData(
+                    selectedCategory.fee_options || [],
+                    null
+                );
+
+            }
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Fee Option Changed
+        |--------------------------------------------------------------------------
+        */
+
+        $('#class_category_fee_option_id').on(
+            'change',
+            function() {
+
+                updateSelectedFee();
+
+            }
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Free Card Changed
+        |--------------------------------------------------------------------------
+        */
+
+        $('#is_free_card').on(
+            'change',
+            function() {
+
+                updateSelectedFee();
+
+            }
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Document Ready
+        |--------------------------------------------------------------------------
+        */
+
+        $(document).ready(
+            function() {
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Student Select2
+                |--------------------------------------------------------------------------
+                */
+
+                @if (!$enrollment->exists)
+
+                    $('#student_id').select2({
+
+                        placeholder:
+                            'Search by Student ID, QR, Full Name, Initial Name',
+
+                        allowClear:
+                            true,
+
+                        width:
+                            '100%',
+
+                        ajax: {
+
+                            url:
+                                "{{ route('admin.students.search') }}",
+
+                            dataType:
+                                'json',
+
+                            delay:
+                                300,
+
+                            data:
+                                function(params) {
+
+                                    return {
+
+                                        q:
+                                            params.term || ''
+
+                                    };
+
+                                },
+
+                            processResults:
+                                function(data) {
+
+                                    return {
+
+                                        results:
+                                            data
+
+                                    };
+
+                                }
+
+                        }
+
+                    });
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Class Select2
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $('#student_class_id').select2({
+
+                        placeholder:
+                            'Search class',
+
+                        allowClear:
+                            true,
+
+                        width:
+                            '100%',
+
+                        ajax: {
+
+                            url:
+                                "{{ route('admin.student-classes.search') }}",
+
+                            dataType:
+                                'json',
+
+                            delay:
+                                300,
+
+                            data:
+                                function(params) {
+
+                                    return {
+
+                                        q:
+                                            params.term || ''
+
+                                    };
+
+                                },
+
+                            processResults:
+                                function(data) {
+
+                                    return {
+
+                                        results:
+                                            data
+
+                                    };
+
+                                }
+
+                        }
+
+                    });
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Class Changed
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $('#student_class_id').on(
+                        'change',
+                        function() {
+
+                            var classId =
+                                $(this).val();
+
+
+                            loadCategories(
+                                classId,
+                                null,
+                                null
+                            );
+
+                        }
+                    );
+
+                @endif
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Existing / Old Data
+                |--------------------------------------------------------------------------
+                */
+
+                if (selectedClassId) {
+
+                    loadCategories(
+                        selectedClassId,
+                        selectedCategoryId,
+                        selectedOptionId
+                    );
+
+                } else {
+
+                    updateSelectedFee();
+
+                }
+
+            }
+        );
+
     </script>
+
 @endpush

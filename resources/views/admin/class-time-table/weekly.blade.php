@@ -73,7 +73,7 @@
 
                 <div class="header-buttons">
 
-                    @if(isset($startOfWeek, $endOfWeek))
+                    @if (isset($startOfWeek, $endOfWeek))
                         <div class="week-info">
                             <i class="bi bi-calendar-range"></i>
                             <span>{{ $startOfWeek->format('d M Y') }} - {{ $endOfWeek->format('d M Y') }}</span>
@@ -115,13 +115,16 @@
                             <label class="form-label fw-semibold mb-2">Status</label>
                             <select name="status" class="form-select custom-input">
                                 <option value="">All Status</option>
-                                <option value="scheduled" {{ request('status') == 'scheduled' ? 'selected' : '' }}>Scheduled
+                                <option value="scheduled" {{ request('status') == 'scheduled' ? 'selected' : '' }}>
+                                    Scheduled
                                 </option>
                                 <option value="ongoing" {{ request('status') == 'ongoing' ? 'selected' : '' }}>Ongoing
                                 </option>
-                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed
+                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>
+                                    Completed
                                 </option>
-                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled
+                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>
+                                    Cancelled
                                 </option>
                             </select>
                         </div>
@@ -130,8 +133,9 @@
                             <label class="form-label fw-semibold mb-2">Grade</label>
                             <select name="grade" class="form-select custom-input">
                                 <option value="">All Grades</option>
-                                @foreach($grades ?? [] as $grade)
-                                    <option value="{{ $grade->id }}" {{ request('grade') == $grade->id ? 'selected' : '' }}>
+                                @foreach ($grades ?? [] as $grade)
+                                    <option value="{{ $grade->id }}"
+                                        {{ request('grade') == $grade->id ? 'selected' : '' }}>
                                         {{ $grade->grade_name }}
                                     </option>
                                 @endforeach
@@ -142,8 +146,9 @@
                             <label class="form-label fw-semibold mb-2">Class Hall</label>
                             <select name="hall_id" class="form-select custom-input">
                                 <option value="">All Halls</option>
-                                @foreach($halls ?? [] as $hall)
-                                    <option value="{{ $hall->id }}" {{ request('hall_id') == $hall->id ? 'selected' : '' }}>
+                                @foreach ($halls ?? [] as $hall)
+                                    <option value="{{ $hall->id }}"
+                                        {{ request('hall_id') == $hall->id ? 'selected' : '' }}>
                                         {{ $hall->hall_name }}
                                     </option>
                                 @endforeach
@@ -165,7 +170,7 @@
                     </div>
                 </form>
 
-                @if(session('error'))
+                @if (session('error'))
                     <div class="alert alert-danger mt-3 mb-0 rounded-3 d-flex align-items-center">
                         <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
                         {{ session('error') }}
@@ -193,7 +198,7 @@
                             <th style="width: 25%">Class Details</th>
                             <th style="width: 10%">Grade</th>
                             <th style="width: 15%">Category</th>
-                            <th style="width: 10%">Fee</th>
+                            <th style="width: 15%">Fee Options</th>
                             <th style="width: 12%">Status</th>
                         </tr>
                     </thead>
@@ -206,13 +211,33 @@
                                 $endTime = $schedule->end_time ? Carbon\Carbon::parse($schedule->end_time) : null;
 
                                 $statusColors = [
-                                    'scheduled' => ['bg' => '#E0E7FF', 'color' => '#4338CA', 'icon' => 'bi-calendar-check'],
-                                    'ongoing' => ['bg' => '#FEF3C7', 'color' => '#D97706', 'icon' => 'bi-play-circle-fill'],
-                                    'completed' => ['bg' => '#D1FAE5', 'color' => '#059669', 'icon' => 'bi-check-circle-fill'],
-                                    'cancelled' => ['bg' => '#FEE2E2', 'color' => '#DC2626', 'icon' => 'bi-x-circle-fill'],
+                                    'scheduled' => [
+                                        'bg' => '#E0E7FF',
+                                        'color' => '#4338CA',
+                                        'icon' => 'bi-calendar-check',
+                                    ],
+                                    'ongoing' => [
+                                        'bg' => '#FEF3C7',
+                                        'color' => '#D97706',
+                                        'icon' => 'bi-play-circle-fill',
+                                    ],
+                                    'completed' => [
+                                        'bg' => '#D1FAE5',
+                                        'color' => '#059669',
+                                        'icon' => 'bi-check-circle-fill',
+                                    ],
+                                    'cancelled' => [
+                                        'bg' => '#FEE2E2',
+                                        'color' => '#DC2626',
+                                        'icon' => 'bi-x-circle-fill',
+                                    ],
                                 ];
                                 $status = strtolower($schedule->status ?? 'scheduled');
-                                $statusStyle = $statusColors[$status] ?? ['bg' => '#F3F4F6', 'color' => '#6B7280', 'icon' => 'bi-question-circle'];
+                                $statusStyle = $statusColors[$status] ?? [
+                                    'bg' => '#F3F4F6',
+                                    'color' => '#6B7280',
+                                    'icon' => 'bi-question-circle',
+                                ];
                             @endphp
 
                             <tr>
@@ -250,7 +275,7 @@
                                             </div>
                                             <small class="text-muted">
                                                 <i class="bi bi-easel"></i>
-                                                {{ $schedule->Hall->hall_name ?? $schedule->classHall->hall_name ?? 'No Hall Assigned' }}
+                                                {{ $schedule->Hall->hall_name ?? ($schedule->classHall->hall_name ?? 'No Hall Assigned') }}
                                             </small>
                                         </div>
                                     </div>
@@ -265,7 +290,7 @@
                                             '3' => 'grade-3',
                                             '4' => 'grade-4',
                                             '5' => 'grade-5',
-                                            '6' => 'grade-6'
+                                            '6' => 'grade-6',
                                         ];
                                         $gradeName = $schedule->studentClass->grade->grade_name ?? '-';
                                         $gradeNum = preg_replace('/[^0-9]/', '', $gradeName);
@@ -286,18 +311,44 @@
                                 </td>
 
                                 <!-- FEE -->
+                                <!-- FEE OPTIONS -->
                                 <td>
                                     @php
-                                        $fee = $schedule->classCategoryFee->fee ?? 0;
+                                        $feeOptions = $schedule->classCategoryFee
+                                            ? $schedule->classCategoryFee->activeFeeOptions
+                                            : collect();
                                     @endphp
-                                    @if($fee > 0)
-                                        <div class="fee-amount">
-                                            <span class="currency">LKR</span>
-                                            {{ number_format($fee, 2) }}
+
+                                    @if ($feeOptions->count() > 0)
+                                        <div class="fee-options-list">
+
+                                            @foreach ($feeOptions as $feeOption)
+                                                <div class="fee-option-item">
+
+                                                    <div class="fee-option-label">
+                                                        {{ $feeOption->label }}
+
+                                                        @if ($feeOption->is_default)
+                                                            <span class="default-fee-badge">
+                                                                Default
+                                                            </span>
+                                                        @endif
+
+                                                    </div>
+
+                                                    <div class="fee-option-price">
+                                                        <span class="currency">LKR</span>
+                                                        {{ number_format((float) $feeOption->fee, 2) }}
+                                                    </div>
+
+                                                </div>
+                                            @endforeach
+
                                         </div>
                                     @else
                                         <span class="free-badge">
-                                            <i class="bi bi-gift-fill"></i> Free
+                                            <i class="bi bi-gift-fill"></i>
+                                            No Fee Options
                                         </span>
                                     @endif
                                 </td>
@@ -331,7 +382,7 @@
             </div>
 
             <!-- PAGINATION -->
-            @if(method_exists($schedules, 'hasPages') && $schedules->hasPages())
+            @if (method_exists($schedules, 'hasPages') && $schedules->hasPages())
                 <div class="mt-4">
                     {{ $schedules->links() }}
                 </div>
@@ -689,6 +740,51 @@
             display: inline-flex;
             align-items: center;
             gap: 0.3rem;
+        }
+
+        /* Fee Options */
+        .fee-options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            min-width: 150px;
+        }
+
+        .fee-option-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 0.5rem 0.65rem;
+        }
+
+        .fee-option-label {
+            color: #334155;
+            font-size: 0.72rem;
+            font-weight: 600;
+            margin-bottom: 0.15rem;
+        }
+
+        .fee-option-price {
+            color: #1e293b;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .fee-option-price .currency {
+            color: #64748b;
+            font-size: 0.65rem;
+            margin-right: 2px;
+        }
+
+        .default-fee-badge {
+            display: inline-block;
+            margin-left: 4px;
+            padding: 2px 5px;
+            border-radius: 5px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 0.58rem;
+            font-weight: 700;
         }
 
         /* Status Badge */

@@ -13,12 +13,9 @@ class StudentClassEnrollment extends Model
         'student_id',
         'student_class_id',
         'class_category_fee_id',
+        'class_category_fee_option_id',
         'is_active',
         'is_free_card',
-        'custom_fee',
-        'custom_fee_reason',
-        'discount_percentage',
-        'discount_reason',
         'enrolled_at',
         'left_at',
         'note',
@@ -27,27 +24,46 @@ class StudentClassEnrollment extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'is_free_card' => 'boolean',
-        'custom_fee' => 'decimal:2',
-        'discount_percentage' => 'decimal:2',
         'enrolled_at' => 'date',
         'left_at' => 'date',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
     public function student()
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(
+            Student::class
+        );
     }
 
     public function studentClass()
     {
-        return $this->belongsTo(StudentClass::class);
+        return $this->belongsTo(
+            StudentClass::class
+        );
     }
 
     public function classCategoryFee()
     {
-        return $this->belongsTo(ClassCategoryFee::class, 'class_category_fee_id');
+        return $this->belongsTo(
+            ClassCategoryFee::class,
+            'class_category_fee_id'
+        );
     }
-    
+
+    public function classCategoryFeeOption()
+    {
+        return $this->belongsTo(
+            ClassCategoryFeeOption::class,
+            'class_category_fee_option_id'
+        );
+    }
+
     public function category()
     {
         return $this->hasOneThrough(
@@ -62,8 +78,16 @@ class StudentClassEnrollment extends Model
 
     public function payments()
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(
+            Payment::class
+        );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Fee
+    |--------------------------------------------------------------------------
+    */
 
     public function getFinalFeeAttribute()
     {
@@ -71,19 +95,23 @@ class StudentClassEnrollment extends Model
             return 0;
         }
 
-        $baseFee = !is_null($this->custom_fee)
-            ? $this->custom_fee
-            : $this->getDefaultFee();
-
-        $discount = $this->discount_percentage ?? 0;
-
-        return round($baseFee - ($baseFee * $discount / 100), 2);
+        return $this->getSelectedFee();
     }
 
-    public function getDefaultFee()
+    public function getSelectedFee()
     {
-        return $this->classCategoryFee?->fee ?? 0;
+        if (!$this->classCategoryFeeOption) {
+            return 0;
+        }
+
+        return (float) $this->classCategoryFeeOption->fee;
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Payment
+    |--------------------------------------------------------------------------
+    */
 
     public function getPaidAmountAttribute()
     {
@@ -92,17 +120,16 @@ class StudentClassEnrollment extends Model
 
     public function getBalanceAttribute()
     {
-        return max($this->final_fee - $this->paid_amount, 0);
+        return max(
+            $this->final_fee - $this->paid_amount,
+            0
+        );
     }
 
     public function getPaymentStatusAttribute()
     {
         if ($this->paid_amount <= 0) {
             return 'unpaid';
-        }
-
-        if ($this->paid_amount < $this->final_fee) {
-            return 'partial';
         }
 
         return 'paid';

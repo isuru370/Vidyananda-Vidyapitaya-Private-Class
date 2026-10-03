@@ -3,12 +3,15 @@
 use App\Http\Controllers\API\AdmissionPaymentController;
 use App\Http\Controllers\API\AttendanceReportController;
 use App\Http\Controllers\API\AttendanceScheduleController;
+use App\Http\Controllers\API\StudentCardAssignmentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Auth\LoginController;
 use App\Http\Controllers\API\ClassScheduleController;
 use App\Http\Controllers\API\GradeController;
 use App\Http\Controllers\API\InstituteHallController;
 use App\Http\Controllers\API\MobileDashboardController;
+use App\Http\Controllers\API\NewAttendance\AttendanceController;
+use App\Http\Controllers\API\NewPayment\PaymentController;
 use App\Http\Controllers\API\Notification\NotificationController;
 use App\Http\Controllers\API\QuickPhotoController;
 use App\Http\Controllers\API\StudentAttendanceController;
@@ -23,6 +26,11 @@ use App\Http\Controllers\API\StudentPaymentController;
 use App\Http\Controllers\API\StudentPaymentReadController;
 use App\Http\Controllers\API\StudentRegisterController;
 use App\Http\Controllers\API\StudentTuteController;
+use App\Http\Controllers\API\Teacher\MyStudentsController;
+use App\Http\Controllers\API\Teacher\TeacherClassesController;
+use App\Http\Controllers\Api\Teacher\TeacherDashboardController;
+use App\Http\Controllers\API\Teacher\TeacherProfileController;
+use App\Http\Controllers\API\Teacher\TeacherTimetableController;
 
 /*
 |--------------------------------------------------------------------------
@@ -123,6 +131,11 @@ Route::middleware([
         [QuickPhotoController::class, 'uploadQuickPhoto']
     )->name('api.quick-photo.upload');
 
+    Route::post(
+        '/quick-photo/update',
+        [QuickPhotoController::class, 'imageUpdate']
+    )->name('api.quick-photo.imageUpdate');
+
     Route::get(
         '/students-image/fetch-image',
         [StudentImageController::class, 'fetchStudentImage']
@@ -184,6 +197,64 @@ Route::middleware([
 
 
     /*
+|--------------------------------------------------------------------------
+| New Payment
+|--------------------------------------------------------------------------
+|
+| New payment architecture
+| Used by Web + Mobile
+|
+*/
+
+    Route::prefix('new-payment')
+        ->name('api.new-payment.')
+        ->group(function () {
+
+            /*
+        |--------------------------------------------------------------------------
+        | Read Student Payment Information
+        |--------------------------------------------------------------------------
+        |
+        | QR / Student ID
+        |
+        */
+
+            Route::post(
+                '/read',
+                [PaymentController::class, 'read']
+            )->name('read');
+
+
+            /*
+        |--------------------------------------------------------------------------
+        | Single Payment
+        |--------------------------------------------------------------------------
+        */
+
+            Route::post(
+                '/pay',
+                [PaymentController::class, 'pay']
+            )->name('pay');
+
+
+            /*
+        |--------------------------------------------------------------------------
+        | Bulk Payment
+        |--------------------------------------------------------------------------
+        |
+        | One or more payments can be sent.
+        | If only one payment is sent, it is also valid.
+        |
+        */
+
+            Route::post(
+                '/bulk-pay',
+                [PaymentController::class, 'bulkPay']
+            )->name('bulk-pay');
+        });
+
+
+    /*
     |--------------------------------------------------------------------------
     | Student Admission Payment Delete
     |--------------------------------------------------------------------------
@@ -230,12 +301,19 @@ Route::middleware([
         [StudentAttendanceReadController::class, 'read']
     )->name('api.attendance.read');
 
-    // new version of attendance scan
+    // old version of attendance scan
     Route::post(
         '/attendance/scan',
         [StudentAttendanceScanController::class, 'scan']
     )->name('api.attendance.scan');
 
+
+    // New version of attendance scan
+
+    Route::post(
+        '/new-attendance/scan',
+        [AttendanceController::class, 'scan']
+    )->name('api.new-attendance.scan');
 
 
     Route::post(
@@ -247,6 +325,11 @@ Route::middleware([
         '/attendance/students/{studentId}/enrollments/{enrolledId}',
         [StudentAttendanceController::class, 'studentAttendanceHistory']
     );
+
+    Route::delete(
+        '/student-attendances/{attendanceId}',
+        [StudentAttendanceController::class, 'deleteAttendance']
+    )->name('api.student-attendances.delete');
 
     Route::post(
         'attendance/schedules',
@@ -316,6 +399,11 @@ Route::middleware([
         '/student-class-enrollments/toggle-status/{enrollmentId}',
         [StudentClassEnrollmentController::class, 'toggleClassStatusChange']
     );
+
+    Route::patch(
+        '/student-class-enrollments/{enrollmentId}/deactivate',
+        [StudentClassEnrollmentController::class, 'deactivateEnrollment']
+    )->name('api.student-class-enrollments.deactivate');
 
 
 
@@ -395,4 +483,93 @@ Route::middleware([
         Route::get('/stats', [NotificationController::class, 'stats']);
         Route::delete('/cleanup', [NotificationController::class, 'deleteOld']);
     });
+
+    /*
+|--------------------------------------------------------------------------
+| Student Card Assignment
+|--------------------------------------------------------------------------
+*/
+
+    Route::prefix('student-card-assignment')
+        ->name('api.student-card-assignment.')
+        ->group(function () {
+
+            Route::post(
+                '/search-student',
+                [StudentCardAssignmentController::class, 'searchStudent']
+            )->name('search-student');
+
+            Route::post(
+                '/search-card',
+                [StudentCardAssignmentController::class, 'searchAvailableCard']
+            )->name('search-card');
+
+            Route::post(
+                '/assign',
+                [StudentCardAssignmentController::class, 'assignCard']
+            )->name('assign');
+        });
 });
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Teacher API v1
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware([
+    'auth:sanctum',
+    'user.active',
+    'role:TEACHER',
+])
+    ->prefix('v1/teacher')
+    ->name('api.v1.teacher.')
+    ->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/dashboard',
+            [TeacherDashboardController::class, 'index']
+        )->name('dashboard');
+
+        // My Classes
+        Route::get(
+            '/classes',
+            [TeacherClassesController::class, 'index']
+        )->name('classes');
+
+        // My Timetable
+        Route::get(
+            '/timetable',
+            [TeacherTimetableController::class, 'index']
+        )->name('timetable');
+
+        // My Students
+        Route::get(
+            '/students',
+            [MyStudentsController::class, 'index']
+        )->name('students');
+
+        // Teacher Profile
+        Route::get(
+            '/profile',
+            [TeacherProfileController::class, 'show']
+        )->name('profile');
+
+        Route::put(
+            '/profile',
+            [TeacherProfileController::class, 'update']
+        )->name('profile.update');
+
+        Route::post(
+            '/profile/change-password',
+            [TeacherProfileController::class, 'changePassword']
+        )->name('profile.change-password');
+    });

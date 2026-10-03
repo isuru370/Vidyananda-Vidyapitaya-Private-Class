@@ -40,7 +40,7 @@ class WeeklyTimeTableExport implements FromCollection, WithHeadings, WithMapping
             'Class Name',
             'Grade',
             'Category',
-            'Fee',
+            'Fee Options',
             'Status',
         ];
     }
@@ -57,31 +57,91 @@ class WeeklyTimeTableExport implements FromCollection, WithHeadings, WithMapping
             'cancelled' => 'Cancelled',
         ];
 
-        $classDate = $schedule->class_date ? Carbon::parse($schedule->class_date) : null;
-        $startTime  = $schedule->start_time ? Carbon::parse($schedule->start_time) : null;
-        $endTime    = $schedule->end_time ? Carbon::parse($schedule->end_time) : null;
+        $classDate = $schedule->class_date
+            ? Carbon::parse($schedule->class_date)
+            : null;
+
+        $startTime = $schedule->start_time
+            ? Carbon::parse($schedule->start_time)
+            : null;
+
+        $endTime = $schedule->end_time
+            ? Carbon::parse($schedule->end_time)
+            : null;
+
+        /*
+         * Get active fee options for this class category fee.
+         *
+         * Example:
+         * Theory Only - Rs. 2500.00
+         * Special      - Rs. 2000.00
+         */
+        $feeOptions = optional($schedule->classCategoryFee)
+            ->activeFeeOptions;
+
+        $feeOptionText = '-';
+
+        if ($feeOptions && $feeOptions->count() > 0) {
+            $feeOptionText = $feeOptions->map(function ($option) {
+                return $option->label . ' - Rs. ' . number_format(
+                    (float) $option->fee,
+                    2
+                );
+            })->implode(', ');
+        }
 
         return [
             $rowNumber,
-            $classDate ? $classDate->format('Y-m-d') : '-',
-            $classDate ? $classDate->format('l') : '-',
-            $startTime ? $startTime->format('h:i A') : '-',
-            $endTime ? $endTime->format('h:i A') : '-',
-            $schedule->hall->hall_name ?? 'N/A',
-            $schedule->studentClass->class_name ?? 'N/A',
-            $schedule->studentClass->grade->grade_name ?? 'N/A',
-            $schedule->classCategoryFee->category->category_name ?? 'N/A',
-            number_format($schedule->classCategoryFee->fee ?? 0, 2),
-            $statusText[$schedule->status] ?? ucfirst((string) $schedule->status),
+
+            $classDate
+                ? $classDate->format('Y-m-d')
+                : '-',
+
+            $classDate
+                ? $classDate->format('l')
+                : '-',
+
+            $startTime
+                ? $startTime->format('h:i A')
+                : '-',
+
+            $endTime
+                ? $endTime->format('h:i A')
+                : '-',
+
+            optional($schedule->hall)->hall_name
+                ?: 'N/A',
+
+            optional($schedule->studentClass)->class_name
+                ?: 'N/A',
+
+            optional(optional($schedule->studentClass)->grade)->grade_name
+                ?: 'N/A',
+
+            optional(optional($schedule->classCategoryFee)->category)->category_name
+                ?: 'N/A',
+
+            $feeOptionText,
+
+            $statusText[$schedule->status]
+                ?? ucfirst((string) $schedule->status),
         ];
     }
 
     public function styles(Worksheet $sheet)
     {
         return [
-            1 => ['font' => ['bold' => true, 'size' => 12]],
+            1 => [
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                ],
+            ],
+
             'A1:K1' => [
-                'font' => ['bold' => true],
+                'font' => [
+                    'bold' => true,
+                ],
             ],
         ];
     }

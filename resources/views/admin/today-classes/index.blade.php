@@ -65,7 +65,7 @@
                             <button type="submit" class="btn btn-primary w-100 custom-btn">Search</button>
                         </div>
                     </div>
-                    @if($searchValue !== '')
+                    @if ($searchValue !== '')
                         <div class="mt-3">
                             <a href="{{ url()->current() }}" class="btn btn-sm btn-outline-secondary">
                                 <i class="bi bi-x-circle"></i> Clear
@@ -77,98 +77,150 @@
 
             <!-- Classes List -->
             @forelse($classes as $classItem)
-                    @php
-                        // Access data using array syntax (mobile API structure)
-                        $studentClass = $classItem['student_class'];
-                        $categoryFee = $classItem['category_fee'];
-                        $schedule = $classItem['schedule'];
-                    @endphp
+                @php
+                    // Access data using array syntax (mobile API structure)
+                    $studentClass = $classItem['student_class'];
+                    $categoryFee = $classItem['category_fee'];
+                    $schedule = $classItem['schedule'];
+                @endphp
 
-                    <div class="class-card mb-4">
-                        <div class="class-card-header">
-                            <div>
-                                <h5 class="mb-1 fw-bold">{{ $studentClass['class_name'] }}</h5>
-                                <div class="meta-line">
-                                    Grade: {{ $studentClass['grade']['grade_name'] ?? '-' }}
-                                    <span class="meta-separator">|</span>
-                                    Subject: {{ $studentClass['subject']['subject_name'] ?? '-' }}
-                                    <span class="meta-separator">|</span>
-                                    Teacher: {{ $studentClass['teacher']['full_name'] ?? '-' }}
-                                </div>
-                            </div>
-                            <div class="class-badges">
-                                <span class="badge bg-primary custom-badge">Schedule</span>
-                                <span class="badge bg-success custom-badge">
-                                    {{ $categoryFee['fee'] ?? 0 }} LKR
-                                </span>
+                <div class="class-card mb-4">
+                    <div class="class-card-header">
+                        <div>
+                            <h5 class="mb-1 fw-bold">{{ $studentClass['class_name'] }}</h5>
+                            <div class="meta-line">
+                                Grade: {{ $studentClass['grade']['grade_name'] ?? '-' }}
+                                <span class="meta-separator">|</span>
+                                Subject: {{ $studentClass['subject']['subject_name'] ?? '-' }}
+                                <span class="meta-separator">|</span>
+                                Teacher: {{ $studentClass['teacher']['full_name'] ?? '-' }}
                             </div>
                         </div>
+                        <div class="class-badges">
+                            <span class="badge bg-primary custom-badge">Schedule</span>
+                            <span class="badge bg-success custom-badge">
+                                @if (!empty($categoryFee['fee_options']))
+                                    <div class="fee-options-header">
+                                        @foreach ($categoryFee['fee_options'] as $feeOption)
+                                            <span class="badge bg-success custom-badge">
+                                                {{ $feeOption['label'] }}
+                                                - LKR {{ number_format((float) $feeOption['fee'], 2) }}
 
-                        <div class="table-responsive">
-                            <table class="table custom-table align-middle mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Time</th>
-                                        <th>Class</th>
-                                        <th>Category Fees</th>
-                                        <th>Teacher</th>
-                                        <th>Hall</th>
-                                        <th class="text-end">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="fw-semibold">
-                                                {{ \Carbon\Carbon::parse($schedule['start_time'])->format('H:i') }} -
-                                                {{ \Carbon\Carbon::parse($schedule['end_time'])->format('H:i') }}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="fw-bold">{{ $studentClass['class_name'] }}</div>
-                                            <small class="text-muted">
-                                                {{ $studentClass['grade']['grade_name'] ?? '-' }} /
-                                                {{ $studentClass['subject']['subject_name'] ?? '-' }}
-                                            </small>
-                                        </td>
-                                        <td>
-                                            @if($categoryFee && isset($categoryFee['category']))
-                                                <span class="fee-pill">
-                                                    {{ $categoryFee['category']['category_name'] ?? '-' }}
-                                                    · Rs. {{ number_format($categoryFee['fee'] ?? 0, 2) }}
-                                                </span>
-                                            @else
-                                                <span class="text-muted">No fee configured</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $studentClass['teacher']['full_name'] ?? '-' }}</td>
-                                        <td>{{ $schedule['hall']['hall_name'] ?? '-' }}</td>
-                                        <td>
-                                            <div class="action-buttons">
-                                                <a href="{{ route('admin.attendance.index', [
+                                                @if (!empty($feeOption['is_default']))
+                                                    <span class="ms-1">(Default)</span>
+                                                @endif
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <span class="badge bg-secondary custom-badge">
+                                        No Fee Options
+                                    </span>
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table custom-table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Class</th>
+                                    <th>Category Fees</th>
+                                    <th>Teacher</th>
+                                    <th>Hall</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">
+                                            {{ \Carbon\Carbon::parse($schedule['start_time'])->format('H:i') }} -
+                                            {{ \Carbon\Carbon::parse($schedule['end_time'])->format('H:i') }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold">{{ $studentClass['class_name'] }}</div>
+                                        <small class="text-muted">
+                                            {{ $studentClass['grade']['grade_name'] ?? '-' }} /
+                                            {{ $studentClass['subject']['subject_name'] ?? '-' }}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        @if ($categoryFee && isset($categoryFee['category']))
+                                            <span class="fee-pill">
+                                                @if ($categoryFee && isset($categoryFee['category']))
+                                                    <div class="category-name mb-2">
+                                                        {{ $categoryFee['category']['category_name'] ?? '-' }}
+                                                    </div>
+
+                                                    @if (!empty($categoryFee['fee_options']))
+                                                        <div class="fee-options-list">
+                                                            @foreach ($categoryFee['fee_options'] as $feeOption)
+                                                                <div class="fee-option-item">
+                                                                    <div class="fee-option-label">
+                                                                        {{ $feeOption['label'] }}
+
+                                                                        @if (!empty($feeOption['is_default']))
+                                                                            <span class="default-fee-badge">
+                                                                                Default
+                                                                            </span>
+                                                                        @endif
+                                                                    </div>
+
+                                                                    <div class="fee-option-price">
+                                                                        <span class="currency">LKR</span>
+                                                                        {{ number_format((float) $feeOption['fee'], 2) }}
+                                                                    </div>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    @else
+                                                        <span class="text-muted">
+                                                            No fee options configured
+                                                        </span>
+                                                    @endif
+                                                @else
+                                                    <span class="text-muted">
+                                                        No fee configured
+                                                    </span>
+                                                @endif
+                                            </span>
+                                        @else
+                                            <span class="text-muted">No fee configured</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $studentClass['teacher']['full_name'] ?? '-' }}</td>
+                                    <td>{{ $schedule['hall']['hall_name'] ?? '-' }}</td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            {{-- <a href="{{ route('admin.attendance.index', [
                     'class_schedule_id' => $schedule['id'],
                     'student_class_id' => $studentClass['id'],
                     'class_category_fee_id' => $categoryFee['id'] ?? 0,
                 ]) }}" class="action-btn view-btn" title="Take Attendance">
                                                     <i class="bi bi-check2-square"></i>
-                                                </a>
-                                                <button type="button" class="action-btn complete-btn" title="Mark Completed">
+                                                </a> --}}
+                                            {{-- <button type="button" class="action-btn complete-btn" title="Mark Completed">
                                                     <i class="bi bi-check-circle-fill"></i>
-                                                </button>
-                                                <a href="{{ route('admin.today-attendance.index', [
-                    'class_schedule_id' => $schedule['id'],
-                    'student_class_id' => $studentClass['id'],
-                    'class_category_fee_id' => $categoryFee['id'] ?? 0,
-                ]) }}" class="action-btn today-attendance-btn" title="View Attendance">
-                                                    <i class="bi bi-eye"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                                                </button> --}}
+                                            <a href="{{ route('admin.today-attendance.index', [
+                                                'class_schedule_id' => $schedule['id'],
+                                                'student_class_id' => $studentClass['id'],
+                                                'class_category_fee_id' => $categoryFee['id'] ?? 0,
+                                            ]) }}"
+                                                class="action-btn today-attendance-btn" title="View Attendance">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
+                </div>
             @empty
                 <div class="alert alert-info border-0 shadow-sm">
                     <i class="bi bi-info-circle-fill me-2"></i>
@@ -480,6 +532,62 @@
 
         .empty-state h5 {
             font-weight: 700;
+        }
+
+        .category-name {
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .fee-options-list {
+            display: flex;
+            flex-direction: column;
+            gap: .45rem;
+            min-width: 150px;
+        }
+
+        .fee-option-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: .5rem .65rem;
+        }
+
+        .fee-option-label {
+            color: #334155;
+            font-size: .72rem;
+            font-weight: 600;
+            margin-bottom: .15rem;
+        }
+
+        .fee-option-price {
+            color: #1e293b;
+            font-size: .78rem;
+            font-weight: 700;
+        }
+
+        .fee-option-price .currency {
+            color: #64748b;
+            font-size: .65rem;
+            margin-right: 2px;
+        }
+
+        .default-fee-badge {
+            display: inline-block;
+            margin-left: 4px;
+            padding: 2px 5px;
+            border-radius: 5px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: .58rem;
+            font-weight: 700;
+        }
+
+        .fee-options-header {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: .35rem;
         }
 
         @media (max-width: 768px) {

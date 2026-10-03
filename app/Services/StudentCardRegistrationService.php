@@ -90,11 +90,11 @@ class StudentCardRegistrationService
             $card->id
         );
 
-        // Create Student ID Card
-        $this->studentService->createStudentIdCard(
-            $student,
-            'completed'
-        );
+        // // Create Student ID Card
+        // $this->studentService->createStudentIdCard(
+        //     $student,
+        //     'completed'
+        // );
 
         // Create Admission Payment
         if ($request->boolean('admission') && $request->filled('admission_id')) {

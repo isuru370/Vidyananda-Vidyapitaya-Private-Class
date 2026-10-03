@@ -80,6 +80,8 @@
                         </a>
                     @endif
 
+                    
+
                     {{-- <a href="{{ route('admin.student-cards.assign.form') }}" class="btn btn-success custom-btn">
                         <i class="bi bi-person-plus"></i>
                         Assign Card
@@ -267,7 +269,7 @@
                                         <a href="{{ route('admin.students.show', $card->student->id) }}"
                                             class="text-decoration-none fw-semibold text-primary">
 
-                                            {{ $card->student->full_name }}
+                                            {{ $card->student->initial_name }}
 
                                         </a>
                                     @else

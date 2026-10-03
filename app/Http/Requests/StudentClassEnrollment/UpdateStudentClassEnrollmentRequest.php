@@ -14,21 +14,40 @@ class UpdateStudentClassEnrollmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'class_category_fee_id' => ['required', 'exists:class_category_fees,id'],
+            'class_category_fee_id' => [
+                'required',
+                'exists:class_category_fees,id',
+            ],
 
-            'is_active' => ['nullable', 'boolean'],
-            'is_free_card' => ['nullable', 'boolean'],
+            'class_category_fee_option_id' => [
+                'required',
+                'exists:class_category_fee_options,id',
+            ],
 
-            'custom_fee' => ['nullable', 'numeric', 'min:0'],
-            'custom_fee_reason' => ['nullable', 'string', 'max:150'],
+            'is_active' => [
+                'nullable',
+                'boolean',
+            ],
 
-            'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'discount_reason' => ['nullable', 'string', 'max:150'],
+            'is_free_card' => [
+                'nullable',
+                'boolean',
+            ],
 
-            'enrolled_at' => ['nullable', 'date'],
-            'left_at' => ['nullable', 'date'],
+            'enrolled_at' => [
+                'nullable',
+                'date',
+            ],
 
-            'note' => ['nullable', 'string'],
+            'left_at' => [
+                'nullable',
+                'date',
+            ],
+
+            'note' => [
+                'nullable',
+                'string',
+            ],
         ];
     }
 }

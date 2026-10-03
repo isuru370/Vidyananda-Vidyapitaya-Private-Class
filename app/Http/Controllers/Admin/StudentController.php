@@ -8,9 +8,6 @@ use App\Http\Requests\Student\UpdateStudentRequest;
 use App\Models\Grade;
 use App\Models\Student;
 use App\Models\Admission;
-use App\Models\AdmissionPayment;
-use App\Models\StudentIdCard;
-use App\Models\TemporaryIdCard;
 use App\Services\StudentService;
 use App\Exports\StudentsExport;
 use App\Models\FcmToken;
@@ -93,7 +90,7 @@ class StudentController extends Controller
             $this->studentService->assignTemporaryCard($student, $data['temporary_qr_code']);
 
             // Create student ID card
-            $this->studentService->createStudentIdCard($student, 'completed');
+            //$this->studentService->createStudentIdCard($student, 'completed');
 
             // Create admission payment if applicable
             if ($request->boolean('admission') && $request->filled('admission_id')) {
@@ -166,8 +163,6 @@ class StudentController extends Controller
 
             $student->update($data);
 
-            // Update student card registration status
-            $this->studentService->updateStudentCardRegistrationStatus($student, 'completed');
 
             // Sync admission payment
             $this->studentService->syncAdmissionPayment(
@@ -284,7 +279,7 @@ class StudentController extends Controller
             ->orderBy('id')
             ->get();
 
-        $pdf = PDF::loadView('admin.students.pdf', compact('students'))
+        $pdf = pdf::loadView('admin.students.pdf', compact('students'))
             ->setPaper('a4', 'landscape');
 
         return $pdf->download('students.pdf');

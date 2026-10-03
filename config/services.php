@@ -31,7 +31,7 @@ return [
     ],
 
     'sms' => [
-        'base_url' => env('SMS_BASE_URL', 'https://smsapi.chatbiz.net/v1'),
+        'base_url' => env('SMS_BASE_URL', 'https://smssender.chatbiz.net/v1'),
         'user_id' => env('SMS_USER_ID'),
         'api_key' => env('SMS_API_KEY'),
         'sender_id' => env('SMS_SENDER_ID'),
@@ -64,6 +64,13 @@ return [
 
     'firebase' => [
         'project_id' => env('FIREBASE_PROJECT_ID'),
+    ],
+
+    'google_drive' => [
+        'client_id' => env('GOOGLE_DRIVE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_DRIVE_CLIENT_SECRET'),
+        'refresh_token' => env('GOOGLE_DRIVE_REFRESH_TOKEN'),
+        'folder_id' => env('GOOGLE_DRIVE_FOLDER_ID'),
     ],
 
     'bulk_delay' => env('SMS_BULK_DELAY', 500000),

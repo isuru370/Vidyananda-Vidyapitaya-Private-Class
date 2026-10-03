@@ -259,16 +259,16 @@
         <div class="info-grid">
             <div class="info-item">
                 <div class="info-label">Grade</div>
-                <div class="info-value">{{ $studentClass->grade?->grade_name ?? '-' }}</div>
+                <div class="info-value">{{ optional($studentClass->grade)->grade_name ?: '-' }}</div>
             </div>
             <div class="info-item">
                 <div class="info-label">Subject</div>
-                <div class="info-value">{{ $studentClass->subject?->subject_name ?? '-' }}</div>
+                <div class="info-value">{{ optional($studentClass->subject)->subject_name ?: '-' }}</div>
             </div>
             <div class="info-item">
                 <div class="info-label">Teacher</div>
                 <div class="info-value">
-                    {{ $studentClass->teacher?->initials ?? $studentClass->teacher?->full_name ?? '-' }}</div>
+                    {{ optional($studentClass->teacher)->initials ?: optional($studentClass->teacher)->full_name ?: '-' }}</div>
             </div>
             <div class="info-item">
                 <div class="info-label">Category</div>
@@ -311,21 +311,37 @@
                 <th style="width: 18%;">Initial Name</th>
                 <th style="width: 20%;">Full Name</th>
                 <th style="width: 12%;">Mobile</th>
-                <th style="width: 15%;" class="text-right">Final Fee</th>
-                <th style="width: 15%;">Status</th>
+                <th style="width: 18%;">Fee Option</th>
+                <th style="width: 12%;" class="text-right">Final Fee</th>
+                <th style="width: 10%;">Status</th>
             </tr>
         </thead>
         <tbody>
             @foreach($enrollments as $key => $enrollment)
                 @php
                     $student = $enrollment->student;
+                    $feeOption = $enrollment->classCategoryFeeOption;
                     $studentCode = '-';
 
                     if ($student && $student->permanent_qr_active && !empty($student->custom_id) && $student->custom_id != '0') {
                         $studentCode = $student->custom_id;
                     } else {
-                        $studentCode = $student->temporary_qr_code ?? '-';
+                        $studentCode = $student
+                            ? ($student->temporary_qr_code ?: '-')
+                            : '-';
                     }
+
+                    if ($enrollment->is_free_card) {
+                        $feeOptionLabel = 'Free Card';
+                    } else {
+                        $feeOptionLabel = $feeOption
+                            ? $feeOption->label
+                            : '-';
+                    }
+
+                    $finalFee = $enrollment->is_free_card
+                        ? 0
+                        : (float) $enrollment->final_fee;
                 @endphp
 
                 <tr>
@@ -334,7 +350,22 @@
                     <td><strong>{{ $student->initial_name ?? '-' }}</strong></td>
                     <td>{{ $student->full_name ?? '-' }}</td>
                     <td>{{ $student->mobile ?? '-' }}</td>
-                    <td class="text-right amount">Rs. {{ number_format($enrollment->final_fee, 2) }}</td>
+                    <td>
+                        <strong>{{ $feeOptionLabel }}</strong>
+                        @if(!$enrollment->is_free_card && $feeOption)
+                            <br>
+                            <span style="font-size: 7px; color: #64748b;">
+                                Rs. {{ number_format((float) $feeOption->fee, 2) }}
+                            </span>
+                        @endif
+                    </td>
+                    <td class="text-right amount">
+                        @if($enrollment->is_free_card)
+                            Free
+                        @else
+                            Rs. {{ number_format($finalFee, 2) }}
+                        @endif
+                    </td>
                     <td class="text-center">
                         @if($enrollment->is_active)
                             <span class="badge-active">✓ Active</span>
@@ -347,7 +378,7 @@
         </tbody>
         <tfoot>
             <tr style="background: #eff6ff; font-weight: 800;">
-                <td colspan="5" class="text-right"><strong>Total</strong></td>
+                <td colspan="6" class="text-right"><strong>Total</strong></td>
                 <td class="text-right amount"><strong>Rs. {{ number_format($totalFee, 2) }}</strong></td>
                 <td></td>
             </tr>
