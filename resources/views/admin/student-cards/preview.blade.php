@@ -365,8 +365,8 @@
         .qr-image {
             position: absolute;
 
-            top: 33%;
-            right: 7.3%;
+            top: 46%;
+            right: 9%;
 
             width: 24%;
             height: 45%;
@@ -382,8 +382,8 @@
 
         /* QR SVG */
         .qr-image svg {
-            width: 78%;
-            height: 78%;
+            width: 95%;
+            height: 95%;
             display: block;
         }
 
@@ -394,8 +394,8 @@
         .qr-text {
             position: absolute;
 
-            top: 44%;
-            right: 44%;
+            top: 53.5%;
+            right: 37.5%;
 
             width: 24%;
             height: 8%;
